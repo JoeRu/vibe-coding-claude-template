@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Item status'
+description: 'Show the current status and details of a specific item.'
+argument-hint: 'Item ID.'
+---
+
 Show the **current status** of a specific item in the implementation plan.
 
 **Arguments:** `$ARGUMENTS` (item ID)

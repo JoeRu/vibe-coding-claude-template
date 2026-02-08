@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Plan summary'
+description: 'Show a summary of the current implementation plan.'
+argument-hint: 'No arguments.'
+---
+
 Show a **plan summary** of the current implementation plan.
 
 ## Steps

@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Deny item'
+description: 'Deny an item in the implementation plan and archive it immediately.'
+argument-hint: 'Item ID followed by optional reason.'
+---
+
 **Deny** an item in the implementation plan and archive it immediately.
 
 **Arguments:** `$ARGUMENTS` (item ID followed by optional reason)

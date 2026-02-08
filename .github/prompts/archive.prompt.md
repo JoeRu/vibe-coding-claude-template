@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Archive items'
+description: 'Archive eligible DONE and DENIED items from the implementation plan.'
+argument-hint: 'No arguments.'
+---
+
 **Archive** all eligible DONE and DENIED items from the implementation plan.
 
 ## Steps

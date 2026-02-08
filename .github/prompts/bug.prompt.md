@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Create bug item'
+description: 'Create a bug item in the implementation plan with optional modifiers.'
+argument-hint: 'Bug description with optional modifiers.'
+---
+
 Create a **bug item** in the implementation plan. The user's argument is the bug description.
 
 **Arguments:** `$ARGUMENTS` (bug description with optional modifiers)

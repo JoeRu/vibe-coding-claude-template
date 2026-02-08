@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Architecture overview'
+description: 'Show the architecture summary from the project overview.'
+argument-hint: 'No arguments.'
+---
+
 Show the **architecture summary** from the project overview.
 
 ## Steps

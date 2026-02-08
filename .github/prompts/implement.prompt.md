@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Implement items'
+description: 'Implement one or more items from the plan, verify, and update results.'
+argument-hint: 'Optional item IDs, comma or space-separated. Leave empty for all approved.'
+---
+
 **Implement** one or more items from the implementation plan end-to-end.
 
 **Arguments:** `$ARGUMENTS` (optional: one or more item IDs, comma or space-separated. If empty, implement all APPROVED items.)

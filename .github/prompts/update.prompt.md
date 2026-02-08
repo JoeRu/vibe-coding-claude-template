@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Update overview'
+description: 'Run code analysis in update mode to refresh XML overviews.'
+argument-hint: 'No arguments.'
+---
+
 Run code analysis in **update mode** as described in `CLAUDE-implementation-plan-chapter.md`.
 
 **Precondition:** Both `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml` must already exist. If they don't, inform the user to run `/init` first.

@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'List items'
+description: 'List implementation-plan items with optional filters.'
+argument-hint: 'Optional filters: status, type, priority, or security.'
+---
+
 **List items** from the implementation plan with optional filtering.
 
 **Arguments:** `$ARGUMENTS` (optional filter: status, type, priority, or "security")

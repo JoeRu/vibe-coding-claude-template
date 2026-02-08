@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Create feature item'
+description: 'Create a feature item in the implementation plan with optional modifiers.'
+argument-hint: 'Feature description with optional modifiers.'
+---
+
 Create a **feature item** in the implementation plan. The user's argument is the feature description.
 
 **Arguments:** `$ARGUMENTS` (feature description with optional modifiers)

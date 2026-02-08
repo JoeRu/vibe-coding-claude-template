@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Approve items'
+description: 'Approve one or more implementation-plan items and assign branches.'
+argument-hint: 'Item IDs, space-separated.'
+---
+
 **Approve** one or more items in the implementation plan.
 
 **Arguments:** `$ARGUMENTS` (one or more item IDs, space-separated)

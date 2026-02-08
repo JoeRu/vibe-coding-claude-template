@@ -1,3 +1,10 @@
+---
+agent: 'agent'
+name: 'Security audit'
+description: 'Run a security audit or show security status for the codebase.'
+argument-hint: 'Optional area (auth, api, status, etc.).'
+---
+
 Run a **security audit** of the codebase.
 
 **Arguments:** `$ARGUMENTS` (optional: specific area like "auth", "api", or "status")
