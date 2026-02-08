@@ -21,6 +21,7 @@ On first encounter with a codebase, perform the initial analysis with `/init` an
 ### Slash Commands
 
 There are several new /-Kommands enabled when adding this chapter to your AI-Behaviour:
+If you are not using CLAUDE - like github-copilot you need to copy the prompts in `.claude/commands` for the same purpose
 
 #### Item Creation
 
