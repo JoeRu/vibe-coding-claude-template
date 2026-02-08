@@ -22,7 +22,7 @@ Code analysis runs in two modes: **initial** (first encounter) and **update** (v
 | Trigger | Mode | Precondition |
 |---|---|---|
 | No `overview.xml` exists | **Initial** | Automatic on first encounter |
-| `/init` | **Initial** | Force re-creation (backs up existing files first) |
+| `/init_overview` | **Initial** | Force re-creation (backs up existing files first) |
 | `/update` | **Update** | Both XML files must already exist |
 
 ### Steps (executed in both modes)
@@ -87,14 +87,14 @@ Every existing feature discovered during analysis is recorded in `overview.xml` 
 2. **Recommend** approving the corresponding reference item first
 3. If no reference item exists yet, **create one** as PENDING
 
-### Mode: Initial (no XMLs exist or `/init`)
+### Mode: Initial (no XMLs exist or `/init_overview`)
 
-When no `overview.xml` exists, or the user explicitly runs `/init`:
+When no `overview.xml` exists, or the user explicitly runs `/init_overview`:
 
 1. Execute all analysis steps above
 2. **Generate** `ai-docs/overview.xml` with the full project baseline
 3. **Generate** `ai-docs/overview-features-bugs.xml` with discovered issues, TODOs, and `[REF]` items as PENDING
-4. If files already exist (`/init` on existing project): **back up** existing files as `overview.xml.bak` and `overview-features-bugs.xml.bak` before overwriting
+4. If files already exist (`/init_overview` on existing project): **back up** existing files as `overview.xml.bak` and `overview-features-bugs.xml.bak` before overwriting
 
 ### Mode: Update (`/update`)
 
@@ -263,7 +263,7 @@ Also generate `ai-docs/overview-features-bugs.xml` with any identified issues, i
 
 ### Session Start
 
-If `overview.xml` already exists, **read it** at the start of every session for project context. Do not re-run analysis unless the user explicitly triggers `/init` or `/update`.
+If `overview.xml` already exists, **read it** at the start of every session for project context. Do not re-run analysis unless the user explicitly triggers `/init_overview` or `/update`.
 
 ## Core Rules
 
@@ -560,7 +560,7 @@ The `<security>` section in `overview.xml` must always reflect the **current** s
 ## Workflow Summary
 
 ```
-First encounter (no overview.xml) or /init
+First encounter (no overview.xml) or /init_overview
      │
      ▼
 Full codebase scan → generate overview.xml + overview-features-bugs.xml
@@ -735,14 +735,14 @@ The user can use slash commands as shortcuts. When a message starts with a slash
 
 | Command | Action |
 |---|---|
-| `/plan` | Show summary: counts by status, type, priority + next actionable items |
+| `/plan_summary` | Show summary: counts by status, type, priority + next actionable items |
 | `/overview` | Show architecture summary from overview.xml |
-| `/init` | Run full code analysis in **initial** mode (creates both XML files, backs up existing) |
+| `/init_overview` | Run full code analysis in **initial** mode (creates both XML files, backs up existing) |
 | `/update` | Run code analysis in **update** mode (verify + sync XMLs against current codebase) |
 
 **Examples:**
 ```
-/init
+/init_overview
 → Backs up existing XMLs (if any)
 → Full codebase scan...
 → Generated overview.xml: 3 patterns, 5 dependencies, 8 features (3 FULL, 4 PARTIAL, 1 UNKNOWN)
