@@ -28,7 +28,8 @@ After update CLAUDE.md and Commands you need to restart claude. Otherwise the ch
 ### Slash Commands
 
 There are several new /-Kommands enabled when adding this chapter to your AI-Behaviour:
-If you are not using CLAUDE - like github-copilot you need to copy the prompts in `.claude/commands` for the same purpose
+If you are not using CLAUDE - like github-copilot you need to copy the prompts in `.claude/commands` for the same purpose.
+If you are using copilot the `.github/prompts` has the same prompts as the claude-commands directory.
 
 #### Item Creation
 
@@ -40,6 +41,7 @@ If you are not using CLAUDE - like github-copilot you need to copy the prompts i
 #### Item Management
 
 - `/approve <ID> [ID...]`: Approve items and generate branch names.
+- `/implement [ID...]`: If a special ID is commited it's autoapproved, if none is commited - all Feature with APPROVED status will be implemented (max 5 in a row)
 - `/deny <ID> [reason]`: Deny an item and archive it immediately.
 - `/status <ID>`: Show current status, tasks, and dependencies.
 - `/list [filter]`: List items by status, type, or priority.
