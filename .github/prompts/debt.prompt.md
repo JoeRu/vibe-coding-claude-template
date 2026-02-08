@@ -1,8 +1,8 @@
 ---
-agent: 'agent'
-name: 'Create tech-debt item'
 description: 'Create a tech-debt item in the implementation plan with optional modifiers.'
+name: 'Create tech-debt item'
 argument-hint: 'Tech-debt description with optional modifiers.'
+agent: 'agent'
 ---
 
 Create a **tech-debt item** in the implementation plan. The user's argument is the tech-debt description.

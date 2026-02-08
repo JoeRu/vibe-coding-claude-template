@@ -1,8 +1,8 @@
 ---
-agent: 'agent'
-name: 'Update overview'
 description: 'Run code analysis in update mode to refresh XML overviews.'
+name: 'Update overview'
 argument-hint: 'No arguments.'
+agent: 'agent'
 ---
 
 Run code analysis in **update mode** as described in `CLAUDE-implementation-plan-chapter.md`.

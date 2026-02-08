@@ -1,8 +1,8 @@
 ---
-agent: 'agent'
-name: 'Create bug item'
 description: 'Create a bug item in the implementation plan with optional modifiers.'
+name: 'Create bug item'
 argument-hint: 'Bug description with optional modifiers.'
+agent: 'agent'
 ---
 
 Create a **bug item** in the implementation plan. The user's argument is the bug description.

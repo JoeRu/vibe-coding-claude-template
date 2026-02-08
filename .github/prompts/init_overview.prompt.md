@@ -1,8 +1,8 @@
 ---
-agent: 'agent'
-name: 'Init overview'
 description: 'Run initial code analysis and generate overview XML files.'
+name: 'Init overview'
 argument-hint: 'No arguments.'
+agent: 'agent'
 ---
 
 Run the **initial code analysis** as described in `CLAUDE-implementation-plan-chapter.md`.

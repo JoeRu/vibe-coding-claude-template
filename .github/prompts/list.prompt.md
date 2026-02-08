@@ -1,8 +1,8 @@
 ---
-agent: 'agent'
-name: 'List items'
 description: 'List implementation-plan items with optional filters.'
+name: 'List items'
 argument-hint: 'Optional filters: status, type, priority, or security.'
+agent: 'agent'
 ---
 
 **List items** from the implementation plan with optional filtering.

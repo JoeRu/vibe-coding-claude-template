@@ -1,8 +1,8 @@
 ---
-agent: 'agent'
-name: 'Implement items'
 description: 'Implement one or more items from the plan, verify, and update results.'
+name: 'Implement items'
 argument-hint: 'Optional item IDs, comma or space-separated. Leave empty for all approved.'
+agent: 'agent'
 ---
 
 **Implement** one or more items from the implementation plan end-to-end.
