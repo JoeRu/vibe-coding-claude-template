@@ -226,6 +226,75 @@ Completed and denied items are moved to the `<archive>` block in `overview-featu
 
 **Do not archive** items that are still referenced by active `depends-on`.
 
+### 10. Security by Default
+
+Security is not a separate concern – it is part of every item's risk assessment.
+
+**For every item** (feature, bug, refactoring, tech-debt), evaluate during creation or approval:
+
+1. **Does this item introduce, modify, or remove any of the following?**
+   - Authentication or authorization logic
+   - User input handling (forms, APIs, file uploads, query parameters)
+   - Data storage or transmission (databases, caches, APIs, cookies, tokens)
+   - Third-party integrations or external API calls
+   - File system access or process execution
+   - Cryptographic operations or secret management
+   - CORS, CSP, or other security headers
+   - User-facing error messages (information disclosure risk)
+
+2. **If yes to any**: add `security="true"` to the item and include a `<security-impact>` block:
+   ```xml
+   <item id="N" type="feature" status="PENDING" priority="HIGH" security="true">
+     ...
+     <security-impact>
+       <category>AUTH|INPUT|DATA|NETWORK|CRYPTO|ACCESS|DISCLOSURE</category>
+       <threat>What could go wrong from a security perspective</threat>
+       <mitigation>How the implementation addresses this</mitigation>
+     </security-impact>
+     ...
+   </item>
+   ```
+
+3. **If no**: no `security` attribute needed – but reassess if scope changes during implementation.
+
+**Security categories reference:**
+
+| Category | Covers |
+|---|---|
+| `AUTH` | Authentication, authorization, session management, token handling |
+| `INPUT` | Injection (SQL, XSS, command), validation, sanitization |
+| `DATA` | Storage encryption, PII handling, data leakage, backup security |
+| `NETWORK` | TLS, CORS, CSP, SSRF, API security, rate limiting |
+| `CRYPTO` | Key management, hashing, signing, random number generation |
+| `ACCESS` | File permissions, path traversal, privilege escalation |
+| `DISCLOSURE` | Error messages, stack traces, debug endpoints, version exposure |
+
+Multiple categories can apply to one item. List all relevant ones.
+
+**Security bugs** found during `/security` audits or implementation are created with:
+```xml
+<item id="N" type="bug" status="PENDING" priority="HIGH" security="true">
+  <title>[SECURITY] Description of the vulnerability</title>
+  <security-impact>
+    <category>INPUT</category>
+    <threat>Unsanitized user input in search query allows SQL injection</threat>
+    <mitigation>Use parameterized queries for all database access</mitigation>
+  </security-impact>
+  ...
+</item>
+```
+
+Security bugs default to `priority="HIGH"` minimum. `CRITICAL` if exploitable without authentication or if it affects data integrity/confidentiality.
+
+### 11. Security Updates on Archival
+
+When archiving items that have `security="true"`, the `<security>` section in `overview.xml` **must** be updated:
+
+- **DONE security items**: evaluate whether the mitigation resolved an existing concern or introduced a new security posture. Update or add `<concern>` entries accordingly.
+- **DENIED security items**: if the denial leaves a known vulnerability unaddressed, add or keep the corresponding `<concern>` with a note that mitigation is outstanding.
+
+The `<security>` section in `overview.xml` must always reflect the **current** security posture of the project – not just the initial analysis.
+
 ## XML Structure Quick Reference
 
 ```xml
@@ -285,6 +354,22 @@ Completed and denied items are moved to the `<archive>` block in `overview-featu
     <affected-files><file>path</file></affected-files>
   </analysis>
 </item>
+
+<!-- Security-relevant item (any type) -->
+<item id="N" type="bug" status="PENDING" priority="HIGH" complexity="M" security="true">
+  <title>[SECURITY] SQL injection in search endpoint</title>
+  <justification>Unsanitized input reaches database query</justification>
+  <security-impact>
+    <category>INPUT</category>
+    <threat>Attacker can extract or modify database contents via crafted search query</threat>
+    <mitigation>Replace string concatenation with parameterized queries</mitigation>
+  </security-impact>
+  <tasks>
+    <task id="N.1">Refactor search query to use parameterized statements</task>
+    <task id="N.2">Add input validation layer for search parameters</task>
+  </tasks>
+  ...
+</item>
 ```
 
 ## Workflow Summary
@@ -333,14 +418,148 @@ Read overview.xml + overview-features-bugs.xml
                     └──→ Add to <completed-features> in overview.xml
 ```
 
+## Slash Commands
+
+The user can use slash commands as shortcuts. When a message starts with a slash command, Claude skips the usual conversational back-and-forth and executes the action directly.
+
+### Item Creation Commands
+
+| Command | Action | Default type | Default priority |
+|---|---|---|---|
+| `/bug <description>` | Create bug item | `bug` | `HIGH` |
+| `/feature <description>` | Create feature item | `feature` | `MEDIUM` |
+| `/refactor <description>` | Create refactoring item | `refactoring` | `MEDIUM` |
+| `/debt <description>` | Create tech-debt item | `tech-debt` | `LOW` |
+
+**Optional inline modifiers** – append after description:
+
+| Modifier | Effect | Example |
+|---|---|---|
+| `!critical` `!high` `!medium` `!low` | Override priority | `/bug Login fails !critical` |
+| `!security` | Mark as security-relevant | `/bug XSS in comments !security` |
+| `@<ID>` | Set `depends-on` | `/feature Token refresh @11` |
+| `^<ID>` | Set `parent` (sub-item of epic) | `/feature OAuth callback ^10` |
+
+**Examples:**
+```
+/bug Login fails silently when OAuth token expires
+→ Creates: item type="bug", priority="HIGH", status="PENDING"
+
+/feature Add dark mode support !low
+→ Creates: item type="feature", priority="LOW", status="PENDING"
+
+/bug Race condition in token cache !critical @11
+→ Creates: item type="bug", priority="CRITICAL", depends-on="11", status="PENDING"
+
+/feature Session management ^10 @11
+→ Creates: item type="feature", parent="10", depends-on="11", status="PENDING"
+```
+
+### Item Management Commands
+
+| Command | Action |
+|---|---|
+| `/approve <ID> [ID...]` | Set status to APPROVED, generate branch name |
+| `/deny <ID> [reason]` | Set status to DENIED, archive immediately |
+| `/status <ID>` | Show current status, tasks, and dependencies of an item |
+| `/list [filter]` | List items – filter by status, type, or priority |
+| `/archive` | Archive all eligible DONE/DENIED items, update security section in overview.xml |
+
+**Examples:**
+```
+/approve 12 13 14
+→ Sets items 12, 13, 14 to APPROVED, generates branch names
+
+/deny 15 Out of scope for MVP
+→ Sets item 15 to DENIED with justification, archives immediately
+
+/status 12
+→ Shows: Item 12 "OAuth Integration" | APPROVED | priority HIGH | depends-on: none | 3 tasks (0 done)
+
+/list pending
+→ Lists all PENDING items with ID, title, priority, complexity
+
+/list bug high
+→ Lists all HIGH priority bugs
+
+/list security
+→ Lists all items with security="true"
+
+/archive
+→ Archives all eligible items, updates both XML files including security section
+```
+
+### Security Commands
+
+| Command | Action |
+|---|---|
+| `/security` | Full security audit of the current codebase |
+| `/security <area>` | Focused audit on a specific area (e.g. `/security auth`, `/security api`) |
+| `/security status` | Show current security posture: open concerns, unresolved security items, coverage |
+
+**`/security` audit process:**
+
+1. **Read** `overview.xml` security section (known concerns) and all items with `security="true"` in `overview-features-bugs.xml`
+2. **Scan** the codebase against security categories (AUTH, INPUT, DATA, NETWORK, CRYPTO, ACCESS, DISCLOSURE)
+3. **Cross-reference** with existing security items to avoid duplicates
+4. **Create bug items** for each finding:
+   - `type="bug"`, `security="true"`, `status="PENDING"`
+   - Title prefixed with `[SECURITY]`
+   - `priority="HIGH"` minimum, `CRITICAL` if exploitable without auth or affects data integrity
+   - Full `<security-impact>` block with category, threat, and mitigation
+5. **Update** `<security>` section in `overview.xml` with any new concerns discovered
+6. **Report** summary to user: total findings, by category, by severity, new vs. already tracked
+
+**Example:**
+```
+/security
+→ Scanning codebase against 7 security categories...
+→ Found 4 issues:
+  - Item 25 [SECURITY] [INPUT] SQL injection in /api/search (CRITICAL) — NEW
+  - Item 26 [SECURITY] [AUTH] Missing rate limit on /auth/login (HIGH) — NEW
+  - Item 27 [SECURITY] [DISCLOSURE] Stack traces in production error responses (HIGH) — NEW
+  - Item 28 [SECURITY] [DATA] User passwords logged in debug mode (CRITICAL) — NEW
+→ Updated overview.xml security section
+→ 4 items created as PENDING – /approve to begin fixes
+
+/security auth
+→ Focused scan on authentication and authorization...
+→ Found 2 issues in auth area.
+
+/security status
+→ Security posture:
+  - 3 open concerns in overview.xml
+  - 2 security bugs PENDING, 1 IN_PROGRESS, 4 DONE (archived)
+  - Uncovered areas: CRYPTO (no items), NETWORK (last audit: 30 days ago)
+```
+
+### Plan Overview Commands
+
+| Command | Action |
+|---|---|
+| `/plan` | Show summary: counts by status, type, priority + next actionable items |
+| `/overview` | Show architecture summary from overview.xml |
+| `/init` | Run initial code analysis (creates both XML files) |
+
+### Command Processing Rules
+
+1. **Always read both XML files first** – even for slash commands
+2. **Still check for duplicates** – `/bug` must search before creating
+3. **Still respect the 5-item limit** – `/approve 1 2 3 4 5 6 7` processes first 5, asks for confirmation
+4. **Still update changelog** – every command that modifies the plan gets a changelog entry
+5. **Confirm creation** – after processing, show: item ID, title, type, priority, status
+6. **Unknown commands** – if a slash command is not recognized, list available commands
+
 ## Important Reminders
 
 - **Never implement without checking both XML files first**
 - **Never create duplicate items** – always search existing items before adding
 - **Never skip PENDING** – the user decides what gets built
+- **Always assess security impact** – every item gets a security check during risk evaluation
+- **Always tag security items** – `security="true"` + `[SECURITY]` title prefix + `<security-impact>` block
 - **Always update `<r>` after implementation** – outcomes and lessons-learned are mandatory
-- **Always archive to both files** – overview.xml stays in sync with completed work
+- **Always archive to both files** – overview.xml stays in sync including security posture
 - **Keep the XML valid** – malformed XML breaks the workflow
 - **Respect the 5-item limit** – ask before processing more
 - **Update changelog once per interaction** – grouped, not per item
-- When in doubt about priority or complexity, **ask the user**
+- When in doubt about priority, complexity, or security impact, **ask the user**
