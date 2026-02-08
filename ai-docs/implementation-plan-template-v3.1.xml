@@ -119,11 +119,13 @@
                    └──→ DENIED
 
     Attributes:
-      type:       feature | bug | refactoring | tech-debt
-      status:     BACKLOG | PENDING | APPROVED | IN_PROGRESS | DONE | DENIED
-      priority:   CRITICAL | HIGH | MEDIUM | LOW
-      complexity: S | M | L | XL  (optional, see guide above)
-      parent:     item ID          (optional, for epic decomposition)
+      type:        feature | bug | refactoring | tech-debt
+      status:      BACKLOG | PENDING | APPROVED | IN_PROGRESS | DONE | DENIED
+      priority:    CRITICAL | HIGH | MEDIUM | LOW
+      complexity:  S | M | L | XL  (optional, see guide above)
+      parent:      item ID          (optional, for epic decomposition)
+      security:    true              (optional, marks security-relevant items)
+      ref-feature: CF-ID             (optional, links [REF] items to completed-features in overview.xml)
 
     Rules for complex items (XL):
       - An XL item acts as an EPIC and MUST be decomposed into sub-items
