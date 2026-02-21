@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Implementation Plan Template v3.1
+  Implementation Plan Template v4.0
 
   Usage:
-  - Each <item> represents a feature, bug, refactoring, or tech-debt
-  - Status flow: BACKLOG → PENDING → APPROVED → IN_PROGRESS → DONE | DENIED
+  - Each <item> represents a work item (feature, bug, epic, enabler, etc.)
+  - RELEASE and BLOCKER items follow a different structure (see examples below)
   - Items are sorted by priority and dependency
   - Statistics are derived from items, not manually maintained
 
   Conventions:
-  - IDs are unique integers across all items
+  - IDs are unique integers across all items (RELEASE use REL- prefix, BLOCKER use BLK-)
   - depends-on references other item IDs (comma-separated)
   - parent attribute references the parent item ID for epics/sub-items
   - All dates in ISO 8601 format (YYYY-MM-DD)
@@ -19,6 +19,24 @@
   - M  = few files, clear scope, 1–3 days
   - L  = cross-cutting, multiple components, 3–7 days
   - XL = epic-level, requires decomposition into sub-items
+
+  Item types:
+  - feature      = deliverable capability
+  - bug          = code defect
+  - refactoring  = structural improvement without behavior change
+  - tech-debt    = known compromise to address
+  - security-item = security vulnerability or hardening task
+  - requirement  = raw user need; decomposed via /translate into epics/features
+  - epic         = XL grouping of features; has acceptance-criteria, no tasks
+  - enabler      = technical prerequisite mapped to a feature (mapped-to-feature attr)
+  - problem      = systemic/environmental issue (not a code defect)
+
+  Status lifecycle (full):
+  PENDING ──→ APPROVED ──→ PLANNED ──→ IN_PROGRESS ──→ REVIEW ──→ DONE ──→ ARCHIVED
+     │                                                    │
+     └──→ DENIED                               FAILED ──→ IN_PROGRESS
+
+  Simple items may skip PLANNED and/or REVIEW when appropriate.
 -->
 <implementation-plan>
 
@@ -112,30 +130,29 @@
   <!-- ================================================================== -->
 
   <!--
-    Status lifecycle:
+    Item attributes:
+      type:             feature | bug | refactoring | tech-debt | security-item |
+                        requirement | epic | enabler | problem
+      status:           PENDING | APPROVED | PLANNED | IN_PROGRESS | REVIEW |
+                        FAILED | DONE | DENIED | ARCHIVED
+      priority:         CRITICAL | HIGH | MEDIUM | LOW
+      complexity:       S | M | L | XL  (optional, see guide above)
+      parent:           item ID          (optional, for epic decomposition)
+      parent-epic:      item ID          (optional, explicit epic reference)
+      mapped-to-feature: item ID         (enabler only)
+      security:         true             (optional, marks security-relevant items)
+      ref-feature:      CF-ID            (optional, links [REF] items to completed-features)
 
-    BACKLOG ──→ PENDING ──→ APPROVED ──→ IN_PROGRESS ──→ DONE
-                   │
-                   └──→ DENIED
+    Optional role-context elements (recommended for EPIC, FEATURE, ENABLER):
+      <capabilities>         — list of capabilities this item delivers
+      <technical-parameters> — constraints, NFRs, implementation patterns (DA-authored)
+      <workflow-log>         — auto-populated lifecycle audit trail
 
-    Attributes:
-      type:        feature | bug | refactoring | tech-debt
-      status:      BACKLOG | PENDING | APPROVED | IN_PROGRESS | DONE | DENIED
-      priority:    CRITICAL | HIGH | MEDIUM | LOW
-      complexity:  S | M | L | XL  (optional, see guide above)
-      parent:      item ID          (optional, for epic decomposition)
-      security:    true              (optional, marks security-relevant items)
-      ref-feature: CF-ID             (optional, links [REF] items to completed-features in overview.xml)
-
-    Rules for complex items (XL):
-      - An XL item acts as an EPIC and MUST be decomposed into sub-items
-      - Sub-items reference the epic via parent="ID"
-      - The epic's status is derived from its children:
-          ALL children DONE        → epic is DONE
-          ANY child IN_PROGRESS    → epic is IN_PROGRESS
-          ALL children BACKLOG     → epic is BACKLOG
-      - The epic itself holds acceptance-criteria, overall risks, and scope
-      - Sub-items hold their own tasks, verification, and results
+    Rules for XL items (epics):
+      - MUST be decomposed into sub-items with parent="ID"
+      - The epic holds acceptance-criteria, risks, and scope — no tasks
+      - Sub-items hold tasks, verification, and results
+      - Epic status is derived from its children
   -->
 
   <!-- ================================================================== -->
@@ -353,11 +370,158 @@
   </item>
 
   <!-- ================================================================== -->
+  <!-- EXAMPLE: REQUIREMENT → EPIC → FEATURE → ENABLER chain              -->
+  <!-- ================================================================== -->
+
+  <!-- Step 1: Raw user need (created via: /feature MyNeed -requirement) -->
+  <item id="50" type="requirement" status="APPROVED" priority="HIGH">
+    <title>Users must be able to export reports as PDF</title>
+    <justification>Requested by enterprise clients for compliance reporting</justification>
+  </item>
+
+  <!-- Step 2: EPIC decomposed from the requirement (via /translate 50) -->
+  <item id="51" type="epic" status="PENDING" priority="HIGH" complexity="XL">
+    <title>Report PDF Export</title>
+    <justification>Implements requirement 50</justification>
+    <depends-on>50</depends-on>
+    <acceptance-criteria>
+      <criterion id="AC1">PDF contains all visible report sections</criterion>
+      <criterion id="AC2">Export completes within 5 seconds for reports under 50 pages</criterion>
+      <criterion id="AC3">Export requires authentication; unauthorized requests are rejected</criterion>
+    </acceptance-criteria>
+    <risks>
+      <risk>PDF library licensing may conflict with project license – evaluate before committing</risk>
+    </risks>
+  </item>
+
+  <!-- Step 3: ENABLER – technical prerequisite for the feature -->
+  <item id="52" type="enabler" status="PENDING" priority="HIGH" complexity="M"
+        parent="51" mapped-to-feature="53">
+    <title>PDF rendering service setup</title>
+    <justification>Feature 53 requires a server-side PDF renderer</justification>
+    <depends-on>51</depends-on>
+    <technical-parameters>
+      <constraint>Isolated container execution for untrusted content</constraint>
+      <constraint>No external network access from renderer</constraint>
+      <pattern>Headless Chromium in sandbox mode</pattern>
+    </technical-parameters>
+    <security-impact>
+      <category>ACCESS</category>
+      <threat>Renderer executing untrusted HTML could escape sandbox</threat>
+      <mitigation>Sandboxed container + no-network policy + content sanitization</mitigation>
+    </security-impact>
+    <tasks>
+      <task id="52.1">Evaluate and select PDF rendering library</task>
+      <task id="52.2">Configure isolated container with no-network policy</task>
+      <task id="52.3">Create rendering wrapper with input sanitization</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="integration">
+          <file>tests/pdf/test_renderer_security.py</file>
+          <description>Renderer sandbox isolation</description>
+          <assertions>Renderer cannot access filesystem or network; malformed HTML handled gracefully</assertions>
+        </test>
+      </tests>
+    </verification>
+    <r><outcome></outcome><files><file></file></files></r>
+  </item>
+
+  <!-- Step 4: FEATURE that depends on the enabler -->
+  <item id="53" type="feature" status="PENDING" priority="HIGH" complexity="M"
+        parent="51" security="true">
+    <title>PDF export endpoint</title>
+    <branch>feature/item-53-pdf-export-endpoint</branch>
+    <justification>Implements AC1, AC2, AC3 of epic 51</justification>
+    <depends-on>52</depends-on>
+    <capabilities>
+      <capability id="CAP-1" type="technical">PDF rendering engine integration</capability>
+      <capability id="CAP-2" type="infrastructure">Async export queue for large reports</capability>
+    </capabilities>
+    <technical-parameters>
+      <constraint>Server-side rendering only — no client-side PDF libs</constraint>
+      <nfr type="performance">p95 latency under 5s for 50-page reports</nfr>
+      <pattern>Queue-based async processing for large exports</pattern>
+    </technical-parameters>
+    <security-impact>
+      <category>AUTH</category>
+      <threat>Unauthenticated access to export endpoint could expose report data</threat>
+      <mitigation>Auth middleware on export route; per-report access control check</mitigation>
+    </security-impact>
+    <tasks>
+      <task id="53.1">Create export endpoint with auth middleware</task>
+      <task id="53.2">Integrate PDF renderer (enabler 52)</task>
+      <task id="53.3">Add async queue for large report exports</task>
+      <task id="53.4">Write unit and integration tests</task>
+    </tasks>
+    <verification>
+      <tests>
+        <test type="integration">
+          <file>tests/pdf/test_export_endpoint.py</file>
+          <description>PDF export end-to-end</description>
+          <assertions>Authenticated users get PDF; unauthenticated get 401; large reports handled async</assertions>
+        </test>
+      </tests>
+    </verification>
+    <workflow-log>
+      <!-- Auto-populated by /approve, /plan-impl, /start, /submit, /pass, /fail -->
+      <entry timestamp="" role="" action="" from-status="" to-status="" note="" />
+    </workflow-log>
+    <r><outcome></outcome><observations></observations><lessons-learned></lessons-learned><files><file></file></files></r>
+  </item>
+
+  <!-- ================================================================== -->
+  <!-- EXAMPLE: RELEASE item                                               -->
+  <!-- ================================================================== -->
+
+  <release id="REL-1" status="PLANNING" target-date="2026-04-01" type="MINOR">
+    <title>v2.4.0 – Report PDF Export</title>
+
+    <scope>
+      <item-ref id="51" type="epic" status="PENDING">Report PDF Export epic</item-ref>
+      <item-ref id="52" type="enabler" status="PENDING">PDF rendering service</item-ref>
+      <item-ref id="53" type="feature" status="PENDING">PDF export endpoint</item-ref>
+    </scope>
+
+    <gates>
+      <gate name="scope-freeze"     status="PENDING" date="" owner="PO" />
+      <gate name="code-complete"    status="PENDING" date="" owner="SM" />
+      <gate name="full-test-pass"   status="PENDING" date="" owner="TST" />
+      <gate name="release-approval" status="PENDING" date="" owner="PO" />
+    </gates>
+
+    <release-test>
+      <run date="" result="">
+        <total></total><passed></passed><failed></failed>
+      </run>
+    </release-test>
+
+    <changelog></changelog>
+  </release>
+
+  <!-- ================================================================== -->
+  <!-- EXAMPLE: BLOCKER item                                               -->
+  <!-- ================================================================== -->
+
+  <blocker id="BLK-1" status="ACTIVE" severity="HIGH" raised-by="DEV" assigned-to="DA,SM">
+    <title>PDF library license incompatible with project</title>
+    <description>Selected library uses AGPL; conflicts with commercial distribution</description>
+    <blocks>
+      <item-ref id="52" />
+      <item-ref id="53" />
+    </blocks>
+    <resolution-plan>DA to evaluate alternative libraries (Puppeteer, WeasyPrint, wkhtmltopdf)</resolution-plan>
+    <resolved-date></resolved-date>
+    <resolution></resolution>
+  </blocker>
+
+  <!-- ================================================================== -->
   <!-- CHANGELOG – track plan evolution                                    -->
   <!-- ================================================================== -->
   <changelog>
     <entry date="2026-01-01">v3.0 – Initial plan created</entry>
     <entry date="2026-01-15">v3.1 – Added parent/child, acceptance-criteria, analysis, complexity</entry>
+    <entry date="2026-02-21">v4.0 – Added PLANNED/REVIEW/FAILED/ARCHIVED states; new types: requirement, epic, enabler, problem, security-item, release, blocker; optional capabilities, technical-parameters, workflow-log elements</entry>
   </changelog>
 
 </implementation-plan>

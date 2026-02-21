@@ -1,1 +1,0 @@
-Read CLAUDE.md as a content for Copilot.

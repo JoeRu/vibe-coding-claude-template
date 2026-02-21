@@ -15,6 +15,8 @@ A separate `overview.xml` captures the project's architectural baseline – stru
 | `ai-docs/implementation-plan-template-v3.1.xml` | Schema reference (do not edit) | Never |
 | `ai-docs/` | All other markdown and planning documents | As needed |
 
+**Also read:** `CLAUDE-roles-chapter.md` for role definitions, capability tables, and the end-to-end workflow swimlane.
+
 ## Code Analysis
 
 Code analysis runs in two modes: **initial** (first encounter) and **update** (verification of existing XMLs). Both modes execute the same analysis steps but differ in how results are processed.
@@ -300,18 +302,49 @@ All new items are created with `status="PENDING"`. The user must explicitly appr
 
 Status lifecycle:
 ```
-PENDING ──→ APPROVED ──→ IN_PROGRESS ──→ DONE
-   │
-   └──→ DENIED
+PENDING ──→ APPROVED ──→ PLANNED ──→ IN_PROGRESS ──→ REVIEW ──→ DONE ──→ ARCHIVED
+   │                                                    │
+   └──→ DENIED                               FAILED ──→ IN_PROGRESS
+                                           (back to DEV, creates BUG item)
 ```
 
-### 4. ID Assignment
+| Status | Meaning |
+|---|---|
+| `PENDING` | Created, awaiting user/PO approval |
+| `APPROVED` | User confirmed; ready for DA to plan |
+| `PLANNED` | DA attached implementation plan + security assessment |
+| `IN_PROGRESS` | DEV actively working |
+| `REVIEW` | Code complete, unit tests pass; TST verifying |
+| `FAILED` | TST rejected; returns to IN_PROGRESS with linked BUG |
+| `DONE` | All tests pass, acceptance criteria met |
+| `DENIED` | Rejected at PENDING gate |
+| `ARCHIVED` | Moved to archive; no active dependents |
+
+The `PLANNED` and `REVIEW` states are optional for simple items. Simple bugs and small features may skip directly APPROVED → IN_PROGRESS → DONE when the implementation is straightforward.
+
+### 4. Item Types
+
+| Type | Default Priority | Created by command | Description |
+|---|---|---|---|
+| `feature` | MEDIUM | `/feature` | Deliverable capability |
+| `bug` | HIGH | `/bug` | Defect; includes steps-to-reproduce |
+| `refactoring` | MEDIUM | `/refactor` | Structural improvement without behavior change |
+| `tech-debt` | LOW | `/debt` | Known technical compromise to address |
+| `security-item` | HIGH | `/bug !security` | Security vulnerability or hardening task |
+| `requirement` | MEDIUM | `/feature --requirement` | Raw user need; decomposed into epics/features |
+| `epic` | MEDIUM | `/feature --epic` | XL grouping of features; has acceptance criteria, no tasks |
+| `enabler` | MEDIUM | `/feature --enabler` | Technical prerequisite mapped to a feature |
+| `problem` | HIGH | `/bug --problem` | Systemic or environmental issue (not a code bug) |
+
+RELEASE and BLOCKER items are managed via `/release` and `/blockers` commands respectively. They live in the same `overview-features-bugs.xml` file but follow a different structure (see `CLAUDE-roles-chapter.md`).
+
+### 5. ID Assignment
 
 - Read the current highest ID in `overview-features-bugs.xml`
 - Assign the next sequential integer
 - Sub-items use the parent ID as prefix for tasks: item 15 → tasks `15.1`, `15.2`, etc.
 
-### 5. Complexity & Decomposition
+### 6. Complexity & Decomposition
 
 Estimate complexity for every new item:
 - **S** = isolated change, single file, < 1 day
@@ -321,7 +354,7 @@ Estimate complexity for every new item:
 
 If an item is XL: create the epic with `<acceptance-criteria>` and create sub-items with individual tasks. Do not put tasks directly on XL items.
 
-### 6. Branch Naming Convention
+### 7. Branch Naming Convention
 
 Branches follow the pattern `{type}/item-{ID}-{slug}`:
 
@@ -338,7 +371,7 @@ Rules:
 - **Auto-fill**: populate `<branch>` in XML when status changes to `APPROVED`
 - **No branch** for DENIED or PENDING items
 
-### 7. Changelog
+### 8. Changelog
 
 Update the `<changelog>` block in `overview-features-bugs.xml` **once per interaction** (not per item change). Group all changes from the same interaction into a single entry.
 
@@ -352,7 +385,7 @@ Format:
 
 No entry for read-only interactions (Claude reads the plan but changes nothing).
 
-### 8. Max Items per Interaction
+### 9. Max Items per Interaction
 
 Soft limit: **5 items** created or updated per response.
 
@@ -362,7 +395,7 @@ Soft limit: **5 items** created or updated per response.
 - **Overflow**: list remaining items as preview, ask user whether to continue
 - **Exception**: initial project analysis (first-time plan creation) has no limit
 
-### 9. Archival
+### 10. Archival
 
 Completed and denied items are moved to the `<archive>` block in `overview-features-bugs.xml` and simultaneously registered in `overview.xml`.
 
@@ -400,7 +433,7 @@ Completed and denied items are moved to the `<archive>` block in `overview-featu
 
 **Do not archive** items that are still referenced by active `depends-on`.
 
-### 10. Security by Default
+### 11. Security by Default
 
 Security is not a separate concern – it is part of every item's risk assessment.
 
@@ -460,7 +493,7 @@ Multiple categories can apply to one item. List all relevant ones.
 
 Security bugs default to `priority="HIGH"` minimum. `CRITICAL` if exploitable without authentication or if it affects data integrity/confidentiality.
 
-### 11. Security Updates on Archival
+### 12. Security Updates on Archival
 
 When archiving items that have `security="true"`, the `<security>` section in `overview.xml` **must** be updated:
 
@@ -653,15 +686,27 @@ The user can use slash commands as shortcuts. When a message starts with a slash
 → Creates: item type="feature", parent="10", depends-on="11", status="PENDING"
 ```
 
+### Lifecycle Transition Commands
+
+| Command | Action | Transition |
+|---|---|---|
+| `/approve <ID> [ID...]` | Set status to APPROVED, generate branch name | PENDING → APPROVED |
+| `/deny <ID> [reason]` | Set status to DENIED, archive immediately | PENDING → DENIED |
+| `/plan-impl <ID>` | DA attaches implementation plan + security assessment | APPROVED → PLANNED |
+| `/start <ID>` | SM assigns item to DEV, begins work | PLANNED → IN_PROGRESS |
+| `/submit <ID>` | DEV submits for testing (unit tests must pass) | IN_PROGRESS → REVIEW |
+| `/pass <ID>` | TST signs off; item is DONE | REVIEW → DONE |
+| `/fail <ID> [reason]` | TST rejects; creates linked BUG item, returns to DEV | REVIEW → FAILED |
+
 ### Item Management Commands
 
 | Command | Action |
 |---|---|
-| `/approve <ID> [ID...]` | Set status to APPROVED, generate branch name |
-| `/deny <ID> [reason]` | Set status to DENIED, archive immediately |
 | `/status <ID>` | Show current status, tasks, and dependencies of an item |
 | `/list [filter]` | List items – filter by status, type, or priority |
 | `/archive` | Archive all eligible DONE/DENIED items, update security section in overview.xml |
+| `/check-deps <ID>` | Show dependency tree and any blocking items |
+| `/board` | Kanban-style view of all items grouped by status column |
 
 **Examples:**
 ```
@@ -730,6 +775,16 @@ The user can use slash commands as shortcuts. When a message starts with a slash
   - 2 security bugs PENDING, 1 IN_PROGRESS, 4 DONE (archived)
   - Uncovered areas: CRYPTO (no items), NETWORK (last audit: 30 days ago)
 ```
+
+### Release and Blocker Commands
+
+| Command | Action |
+|---|---|
+| `/release <version> [--target <date>]` | Create RELEASE item; link features/bugs to scope; manage gates |
+| `/blockers` | List active BLOCKER items |
+| `/blockers <title> --blocks <ID,...>` | Create new BLOCKER item |
+| `/blockers resolve <ID>` | Resolve a BLOCKER and unblock dependent items |
+| `/translate <ID>` | Decompose a REQUIREMENT item into EPIC + FEATURE/ENABLER children |
 
 ### Plan Overview Commands
 
