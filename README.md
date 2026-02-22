@@ -53,7 +53,7 @@ template/
     copilot-instructions.md  ← baseline Copilot instructions
     prompts/                 ← equivalent prompts for GitHub Copilot
   ai-docs/
-    implementation-plan-template-v3.1.xml
+    implementation-plan-template.xml
   CLAUDE-implementation-plan-chapter.md
 ```
 

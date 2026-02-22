@@ -13,7 +13,7 @@
 
 ## Project Conventions
 - AI plan/overview workflows are defined in prompt files; follow [init_overview.prompt.md](.github/prompts/init_overview.prompt.md#L1-L33) for baseline scans and [implement.prompt.md](.github/prompts/implement.prompt.md#L1-L52) for plan item execution.
-- Plan artifacts and schema live under ai-docs/, with the template at [ai-docs/implementation-plan-template-v3.1.xml](ai-docs/implementation-plan-template-v3.1.xml).
+- Plan artifacts and schema live under ai-docs/, with the template at [ai-docs/implementation-plan-template.xml](ai-docs/implementation-plan-template.xml).
 
 ## Integration Points
 - Dependencies suggest HTTP and MCP CLI integration points (`httpx`, `mcp[cli]`), but no usage exists yet in [pyproject.toml](pyproject.toml#L1-L10).

@@ -22,7 +22,7 @@ Run the **initial code analysis** as described in `CLAUDE-implementation-plan-ch
    - Detect environments (dev/staging/prod)
 4. **Generate** `ai-docs/overview.xml` with the full project baseline using the schema from `CLAUDE-implementation-plan-chapter.md`.
 5. **Generate** `ai-docs/overview-features-bugs.xml` with discovered issues, TODOs, and `[REF]` items for features that are not FULL + TESTED. All items start as `status="PENDING"`.
-6. Read `ai-docs/implementation-plan-template-v3.1.xml` for the XML schema reference.
+6. Read `ai-docs/implementation-plan-template.xml` for the XML schema reference.
 7. Report a summary to the user: patterns found, dependencies, features discovered (with completeness breakdown), items created.
 
 ## Important

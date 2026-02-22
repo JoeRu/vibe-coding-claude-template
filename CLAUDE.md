@@ -17,7 +17,7 @@ template/
     copilot-instructions.md      — Copilot baseline instructions
     prompts/*.prompt.md          — equivalent prompts for GitHub Copilot
   ai-docs/
-    implementation-plan-template-v3.1.xml  — XML schema reference
+    implementation-plan-template.xml  — XML schema reference
   CLAUDE-implementation-plan-chapter.md   — the chapter to embed in CLAUDE.md
 setup.sh                         — installer script
 README.md                        — project documentation
@@ -27,7 +27,7 @@ requirements.md                  — extended role/capability workflow reference
 ## Key Files
 
 - `template/CLAUDE-implementation-plan-chapter.md` — core workflow chapter; this is what gets embedded in users' CLAUDE.md
-- `template/ai-docs/implementation-plan-template-v3.1.xml` — XML schema; read this when writing or validating plan XML
+- `template/ai-docs/implementation-plan-template.xml` — XML schema; read this when writing or validating plan XML
 - `template/.claude/commands/*.md` — slash command definitions installed into target projects
 - `template/.github/prompts/*.prompt.md` — GitHub Copilot equivalents
 - `setup.sh` — idempotent installer; downloads from `template/` on GitHub or copies from local clone

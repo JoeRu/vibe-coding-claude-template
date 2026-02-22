@@ -47,7 +47,7 @@ FILES=(
   .github/prompts/status.prompt.md
   .github/prompts/update.prompt.md
   .github/prompts/update-item.prompt.md
-  ai-docs/implementation-plan-template-v3.1.xml
+  ai-docs/implementation-plan-template.xml
   CLAUDE-implementation-plan-chapter.md
 )
 
@@ -69,7 +69,7 @@ COPILOT_SECTION='
 AI plan/overview workflows follow prompt files in `.github/prompts/`.
 - Use `init_overview.prompt.md` for baseline project scans (generates `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml`)
 - Use `implement.prompt.md` to execute plan items end-to-end
-- Plan artifacts live under `ai-docs/` with schema at `ai-docs/implementation-plan-template-v3.1.xml`
+- Plan artifacts live under `ai-docs/` with schema at `ai-docs/implementation-plan-template.xml`
 '
 
 # ── Helpers ─────────────────────────────────────────────────
