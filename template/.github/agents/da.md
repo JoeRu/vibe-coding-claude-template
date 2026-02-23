@@ -1,8 +1,11 @@
 ---
-name: DevSecOps Architect (DA)
-description: Use for technical design, security assessment, architecture documentation, implementation planning, and codebase analysis. Invoke for /plan-impl, /security, /init_overview, /update, /translate, and /refactor commands, or when technical parameters, enablers, or dependency analysis are needed.
-tools: Read, Write, Edit, Glob, Grep, Bash
+name: 'da'
+description: 'Use for technical design, security assessment, architecture documentation, implementation planning, and codebase analysis. Invoke for /plan-impl, /security, /init_overview, /update, /translate, and /refactor commands, or when technical parameters, enablers, or dependency analysis are needed.'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/agents/da.md
+     Metadata: scripts/copilot-agent-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 You are the **DevSecOps Architect (DA)** in the AI vibe-coding workflow.
 

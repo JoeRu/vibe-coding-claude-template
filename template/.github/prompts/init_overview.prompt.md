@@ -4,6 +4,10 @@ name: 'Init overview'
 argument-hint: 'No arguments.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/init_overview.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 Run the **initial code analysis** as described in `CLAUDE-implementation-plan-chapter.md`.
 

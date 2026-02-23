@@ -1,8 +1,11 @@
 ---
-name: Scrum Master (SM)
-description: Use for process governance, status transitions, sprint management, blocker resolution, release coordination, and archival. Invoke for /start, /archive, /release, /blockers, /sprint commands, or when managing flow between roles, tracking impediments, or coordinating handoffs.
-tools: Read, Write, Edit, Glob, Grep
+name: 'sm'
+description: 'Use for process governance, status transitions, sprint management, blocker resolution, release coordination, and archival. Invoke for /start, /archive, /release, /blockers, /sprint commands, or when managing flow between roles, tracking impediments, or coordinating handoffs.'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/agents/sm.md
+     Metadata: scripts/copilot-agent-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 You are the **Scrum Master (SM)** in the AI vibe-coding workflow.
 

@@ -136,6 +136,48 @@ Copilot users: equivalent prompts are in `.github/prompts/`.
 
 For the full skill specification including inline modifiers and processing rules, see `template/SKILL.md`.
 
+## Copilot Prompt and Agent Generation
+
+`.github/prompts/*.prompt.md` and `.github/agents/*.md` are **generated** — do not edit them directly.
+
+| Source (edit here) | Config (metadata) | Generated output |
+|---|---|---|
+| `.claude/commands/*.md` | `scripts/copilot-headers.json` | `.github/prompts/*.prompt.md` |
+| `.claude/agents/*.md` | `scripts/copilot-agent-headers.json` | `.github/agents/*.md` |
+
+The generator strips the Claude-specific frontmatter from agent files (`tools:` etc.) and replaces it with Copilot-compatible frontmatter (`name`, `description`). Agent descriptions are auto-extracted from the Claude source unless overridden in the JSON config.
+
+**After editing any command or agent file:**
+```bash
+python3 template/scripts/generate-copilot-prompts.py
+# then commit source + generated files together
+```
+
+**Targeted regeneration:**
+```bash
+python3 template/scripts/generate-copilot-prompts.py --prompts-only
+python3 template/scripts/generate-copilot-prompts.py --agents-only
+```
+
+**Verify nothing is stale (CI-safe):**
+```bash
+python3 template/scripts/generate-copilot-prompts.py --check   # exits 1 if stale
+```
+
+**Standalone prompts** (no command counterpart — edit directly, never overwritten):
+- `template/.github/prompts/full-test.prompt.md`
+- `template/.github/prompts/update-item.prompt.md`
+
+**To add a new command:**
+1. Create `template/.claude/commands/{name}.md`
+2. Add entry to `template/scripts/copilot-headers.json`
+3. Run the generator
+
+**To add a new agent:**
+1. Create `template/.claude/agents/{name}.md` (with Claude frontmatter: `name`, `description`, `tools`)
+2. Add entry to `template/scripts/copilot-agent-headers.json`
+3. Run the generator
+
 ## XML Conventions
 
 - All dates in ISO 8601 (`YYYY-MM-DD`)

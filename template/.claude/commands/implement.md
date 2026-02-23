@@ -10,9 +10,10 @@ This command takes items through the full lifecycle: analyze → approve (if nee
 
 ### 1. Read Context
 
-- **Read** `ai-docs/overview.xml` (project context, architecture, completed features)
-- **Read** `ai-docs/overview-features-bugs.xml` (all items)
-- **Read** `CLAUDE.md` for project conventions and development workflow
+Read the following files in parallel before taking any action:
+- `ai-docs/overview.xml` (project context, architecture, completed features)
+- `ai-docs/overview-features-bugs.xml` (all items)
+- `CLAUDE.md` for project conventions and development workflow
 
 ### 2. Determine Items to Implement
 
@@ -46,7 +47,7 @@ For each item that is NOT yet `APPROVED` or `IN_PROGRESS`:
 
 For each item, before writing any code:
 1. **Read the item's tasks** and verification/test plan from the XML
-2. **Read all files** referenced in the item and related features
+2. **Read all files** referenced in the item and related features in parallel — read before forming any opinion about what to change
 3. **Understand the current state** of the code that will be modified or tested
 4. **Identify the approach**: what exactly needs to be built, changed, or tested
 5. **Check feature completeness**: if changes touch features with `completeness != FULL` or `test-coverage == NONE`, note the risk (the [REF] items themselves are expected to address this)

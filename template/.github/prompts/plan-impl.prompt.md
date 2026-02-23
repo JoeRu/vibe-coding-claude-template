@@ -1,9 +1,13 @@
 ---
 description: 'Attach an implementation plan to an APPROVED item (DA role). Transitions to PLANNED.'
 name: 'Plan implementation'
-argument-hint: 'Item ID'
+argument-hint: 'Item ID.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/plan-impl.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 Attach an **implementation plan** to an APPROVED item (DA role). Transitions status to PLANNED.
 

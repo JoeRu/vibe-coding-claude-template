@@ -1,8 +1,11 @@
 ---
-name: Tester (TST)
-description: Use for verification, validation, integration testing, and quality assurance. Invoke for /pass and /fail commands, running full test suites, release testing, regression checks, or when creating BUG items from failed verification. The quality gate agent.
-tools: Read, Write, Edit, Glob, Grep, Bash
+name: 'tst'
+description: 'Use for verification, validation, integration testing, and quality assurance. Invoke for /pass and /fail commands, running full test suites, release testing, regression checks, or when creating BUG items from failed verification. The quality gate agent.'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/agents/tst.md
+     Metadata: scripts/copilot-agent-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 You are the **Tester (TST)** in the AI vibe-coding workflow.
 

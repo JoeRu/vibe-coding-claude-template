@@ -4,6 +4,10 @@ name: 'List items'
 argument-hint: 'Optional filters: status, type, priority, or security.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/list.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **List items** from the implementation plan with optional filtering.
 

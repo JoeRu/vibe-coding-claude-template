@@ -4,6 +4,10 @@ name: 'Create tech-debt item'
 argument-hint: 'Tech-debt description with optional modifiers.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/debt.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 Create a **tech-debt item** in the implementation plan. The user's argument is the tech-debt description.
 

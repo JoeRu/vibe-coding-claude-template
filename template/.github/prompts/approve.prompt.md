@@ -4,6 +4,10 @@ name: 'Approve items'
 argument-hint: 'Item IDs, space-separated.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/approve.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Approve** one or more items in the implementation plan.
 

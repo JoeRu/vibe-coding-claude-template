@@ -1,0 +1,139 @@
+{
+  "_comment": "Copilot-specific metadata for each .claude/commands/*.md file. The generator reads this file and prepends a YAML frontmatter block to every command file to produce .github/prompts/*.prompt.md. Edit command BODIES in .claude/commands/. Edit METADATA (name/description/hint) here. Run generate-copilot-prompts.py after any change.",
+
+  "approve": {
+    "name": "Approve items",
+    "description": "Approve one or more implementation-plan items and assign branches.",
+    "argument-hint": "Item IDs, space-separated."
+  },
+  "archive": {
+    "name": "Archive items",
+    "description": "Archive eligible DONE and DENIED items from the implementation plan.",
+    "argument-hint": "No arguments."
+  },
+  "blockers": {
+    "name": "Manage blockers",
+    "description": "Manage BLOCKER items — list, create, or resolve blockers.",
+    "argument-hint": "Empty | resolve <ID> | <title> --blocks <ID,...>"
+  },
+  "board": {
+    "name": "Show board",
+    "description": "Show a kanban-style board of all active items grouped by status column.",
+    "argument-hint": "Optional filter: type, priority, or keyword."
+  },
+  "bug": {
+    "name": "Create bug item",
+    "description": "Create a bug item in the implementation plan with optional modifiers.",
+    "argument-hint": "Bug description with optional modifiers."
+  },
+  "check-deps": {
+    "name": "Check dependencies",
+    "description": "Show the dependency tree for an item — what it depends on, what depends on it, and any blockers.",
+    "argument-hint": "Item ID."
+  },
+  "debt": {
+    "name": "Create tech-debt item",
+    "description": "Create a tech-debt item in the implementation plan with optional modifiers.",
+    "argument-hint": "Tech-debt description with optional modifiers."
+  },
+  "deny": {
+    "name": "Deny item",
+    "description": "Deny an item in the implementation plan and archive it immediately.",
+    "argument-hint": "Item ID followed by optional reason."
+  },
+  "fail": {
+    "name": "Fail item",
+    "description": "TST rejects an item in REVIEW — creates a linked BUG and returns to IN_PROGRESS.",
+    "argument-hint": "Item ID [reason]"
+  },
+  "feature": {
+    "name": "Create feature item",
+    "description": "Create a feature item in the implementation plan with optional modifiers.",
+    "argument-hint": "Feature description with optional modifiers."
+  },
+  "implement": {
+    "name": "Implement items",
+    "description": "Implement one or more items from the plan, verify, and update results.",
+    "argument-hint": "Optional item IDs, comma or space-separated. Leave empty for all approved."
+  },
+  "init_overview": {
+    "name": "Init overview",
+    "description": "Run initial code analysis and generate overview XML files.",
+    "argument-hint": "No arguments."
+  },
+  "lessons": {
+    "name": "Lessons learned",
+    "description": "Show lessons learned from past implementation items, optionally filtered by category.",
+    "argument-hint": "[category: technologie | architektur | sicherheit | testing | prozess]"
+  },
+  "list": {
+    "name": "List items",
+    "description": "List implementation-plan items with optional filters.",
+    "argument-hint": "Optional filters: status, type, priority, or security."
+  },
+  "overview": {
+    "name": "Architecture overview",
+    "description": "Show the architecture summary from the project overview.",
+    "argument-hint": "No arguments."
+  },
+  "pass": {
+    "name": "Pass item",
+    "description": "TST signs off on an item in REVIEW — transitions to DONE.",
+    "argument-hint": "Item ID [test notes]"
+  },
+  "plan-impl": {
+    "name": "Plan implementation",
+    "description": "Attach an implementation plan to an APPROVED item (DA role). Transitions to PLANNED.",
+    "argument-hint": "Item ID."
+  },
+  "plan_summary": {
+    "name": "Plan summary",
+    "description": "Show a summary of the current implementation plan.",
+    "argument-hint": "No arguments."
+  },
+  "refactor": {
+    "name": "Create refactoring item",
+    "description": "Create a refactoring item in the implementation plan with optional modifiers.",
+    "argument-hint": "Refactoring description with optional modifiers."
+  },
+  "release": {
+    "name": "Manage release",
+    "description": "Manage RELEASE items — create a release, update gates, or show release status.",
+    "argument-hint": "<version> [--target <date>] | status <ID> | gate <ID> <gate-name> | go <ID>"
+  },
+  "security": {
+    "name": "Security audit",
+    "description": "Run a security audit or show security status for the codebase.",
+    "argument-hint": "Optional area (auth, api, status, etc.)."
+  },
+  "sprint": {
+    "name": "Sprint management",
+    "description": "Manage sprints — create, view, or close lightweight sprint groupings of 2-5 APPROVED items.",
+    "argument-hint": "[create [ID...] | close]"
+  },
+  "start": {
+    "name": "Start item",
+    "description": "Start an item — transition from PLANNED (or APPROVED) to IN_PROGRESS.",
+    "argument-hint": "Item ID."
+  },
+  "status": {
+    "name": "Item status",
+    "description": "Show the current status and details of a specific item.",
+    "argument-hint": "Item ID."
+  },
+  "submit": {
+    "name": "Submit item for review",
+    "description": "Submit an item for review — transition from IN_PROGRESS to REVIEW.",
+    "argument-hint": "Item ID [notes]"
+  },
+  "translate": {
+    "name": "Translate requirement",
+    "description": "Decompose a REQUIREMENT item into an EPIC with child FEATURE and ENABLER items.",
+    "argument-hint": "REQUIREMENT item ID."
+  },
+  "update": {
+    "name": "Update overview",
+    "description": "Run code analysis in update mode to refresh XML overviews.",
+    "argument-hint": "No arguments."
+  }
+}

@@ -1,9 +1,13 @@
 ---
 description: 'Start an item — transition from PLANNED (or APPROVED) to IN_PROGRESS.'
 name: 'Start item'
-argument-hint: 'Item ID'
+argument-hint: 'Item ID.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/start.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Start** an item — transition from PLANNED (or APPROVED) to IN_PROGRESS. SM role assigns work to DEV.
 
@@ -20,6 +24,13 @@ agent: 'agent'
 7. **Add workflow-log entry**: `role="SM" action="started" from-status="PLANNED" to-status="IN_PROGRESS"`.
 8. **Update changelog** in `overview-features-bugs.xml`.
 9. **Confirm** to user: item ID, title, IN_PROGRESS, branch name (if set), list of tasks to complete.
+
+## Sprint Suggestion
+
+After verifying the single item to start, check the count of other APPROVED items:
+- If there are **2 or more** other APPROVED items (beyond the one being started) AND no active SPRINT exists:
+  - Offer: *"There are N other APPROVED items. Would you like to group them into a sprint? Run `/sprint create` to group all APPROVED items, or proceed with starting this item alone."*
+  - Do NOT auto-create the sprint — just suggest it. Proceed with starting the requested item.
 
 ## Important
 

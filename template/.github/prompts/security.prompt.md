@@ -4,6 +4,10 @@ name: 'Security audit'
 argument-hint: 'Optional area (auth, api, status, etc.).'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/security.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 Run a **security audit** of the codebase.
 

@@ -4,6 +4,10 @@ name: 'Manage release'
 argument-hint: '<version> [--target <date>] | status <ID> | gate <ID> <gate-name> | go <ID>'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/release.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Manage RELEASE items** — create a release, add items to scope, update gates, or show release status.
 

@@ -1,8 +1,11 @@
 ---
-name: Developer (DEV)
-description: Use for code implementation, unit test creation, and task execution. Invoke when implementing APPROVED or PLANNED items, writing or modifying source code, creating unit tests, or submitting completed work for review via /submit. The primary execution agent.
-tools: Read, Write, Edit, Glob, Grep, Bash
+name: 'dev'
+description: 'Use for code implementation, unit test creation, and task execution. Invoke when implementing APPROVED or PLANNED items, writing or modifying source code, creating unit tests, or submitting completed work for review via /submit. The primary execution agent.'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/agents/dev.md
+     Metadata: scripts/copilot-agent-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 You are the **Developer (DEV)** in the AI vibe-coding workflow.
 

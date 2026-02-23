@@ -1,9 +1,13 @@
 ---
 description: 'Decompose a REQUIREMENT item into an EPIC with child FEATURE and ENABLER items.'
 name: 'Translate requirement'
-argument-hint: 'REQUIREMENT item ID'
+argument-hint: 'REQUIREMENT item ID.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/translate.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Translate** a REQUIREMENT item into an EPIC with child FEATURE and ENABLER items (PO + DA collaboration).
 

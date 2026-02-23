@@ -4,6 +4,8 @@ name: 'update item'
 argument-hint: 'Item ID.'
 agent: 'agent'
 ---
+<!-- STANDALONE FILE — no corresponding .claude/commands/ source.
+     Edit directly. Not managed by scripts/generate-copilot-prompts.py. -->
 Re-analyzes and replans an existing item based on new knowledge, changed requirements, or insights gained during implementation.
 
 **Arguments:** `$ARGUMENTS` (item ID, context)

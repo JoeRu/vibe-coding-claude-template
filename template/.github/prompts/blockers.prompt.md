@@ -4,6 +4,10 @@ name: 'Manage blockers'
 argument-hint: 'Empty | resolve <ID> | <title> --blocks <ID,...>'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/blockers.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Manage BLOCKER items** — list, create, or resolve blockers that impede other items.
 

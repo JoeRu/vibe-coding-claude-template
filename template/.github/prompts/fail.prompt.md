@@ -1,9 +1,13 @@
 ---
 description: 'TST rejects an item in REVIEW — creates a linked BUG and returns to IN_PROGRESS.'
 name: 'Fail item'
-argument-hint: 'Item ID reason'
+argument-hint: 'Item ID [reason]'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/fail.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Fail** an item — TST rejects it, transitions from REVIEW back to IN_PROGRESS, and creates a linked BUG item.
 

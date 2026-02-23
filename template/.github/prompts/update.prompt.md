@@ -4,6 +4,10 @@ name: 'Update overview'
 argument-hint: 'No arguments.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/update.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 Run code analysis in **update mode** as described in `CLAUDE-implementation-plan-chapter.md`.
 

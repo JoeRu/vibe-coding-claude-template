@@ -1,0 +1,19 @@
+{
+  "_comment": "Copilot agent metadata. 'name' is the identifier used in the Copilot UI. 'description' is optional — if omitted, it is auto-extracted from the 'description' field in the corresponding .claude/agents/*.md frontmatter. Add an explicit 'description' here only when you need Copilot-specific wording that differs from the Claude description.",
+
+  "po": {
+    "name": "po"
+  },
+  "sm": {
+    "name": "sm"
+  },
+  "da": {
+    "name": "da"
+  },
+  "dev": {
+    "name": "dev"
+  },
+  "tst": {
+    "name": "tst"
+  }
+}

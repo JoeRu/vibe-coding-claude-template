@@ -1,9 +1,13 @@
 ---
 description: 'Show a kanban-style board of all active items grouped by status column.'
 name: 'Show board'
-argument-hint: 'Optional filter: type, priority, or keyword'
+argument-hint: 'Optional filter: type, priority, or keyword.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/board.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 Show a **kanban-style board** of all active items grouped by status column.
 

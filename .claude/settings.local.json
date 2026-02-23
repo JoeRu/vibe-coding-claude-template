@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(cd C:\\\\Users\\\\johan\\\\code\\\\vibe-coding-claude-template\\\\template:*)",
+      "Bash(python3:*)"
+    ]
+  }
+}

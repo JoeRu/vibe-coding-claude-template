@@ -4,6 +4,10 @@ name: 'Pass item'
 argument-hint: 'Item ID [test notes]'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/pass.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Pass** an item — TST signs off, transitions from REVIEW to DONE.
 

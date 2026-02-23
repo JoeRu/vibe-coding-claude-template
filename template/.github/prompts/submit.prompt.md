@@ -4,6 +4,10 @@ name: 'Submit item for review'
 argument-hint: 'Item ID [notes]'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/submit.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Submit** an item for review — transition from IN_PROGRESS to REVIEW. DEV role confirms implementation is complete and unit tests pass.
 

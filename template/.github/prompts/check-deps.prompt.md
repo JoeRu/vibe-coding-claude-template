@@ -1,9 +1,13 @@
 ---
 description: 'Show the dependency tree for an item — what it depends on, what depends on it, and any blockers.'
 name: 'Check dependencies'
-argument-hint: 'Item ID'
+argument-hint: 'Item ID.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/check-deps.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 Show the **dependency tree** for an item — what it depends on, what depends on it, and any blocking issues.
 

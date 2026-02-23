@@ -4,6 +4,10 @@ name: 'Deny item'
 argument-hint: 'Item ID followed by optional reason.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/deny.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 **Deny** an item in the implementation plan and archive it immediately.
 

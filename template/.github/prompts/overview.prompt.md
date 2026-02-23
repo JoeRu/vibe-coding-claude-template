@@ -4,6 +4,10 @@ name: 'Architecture overview'
 argument-hint: 'No arguments.'
 agent: 'agent'
 ---
+<!-- GENERATED FILE — do not edit directly.
+     Source:   .claude/commands/overview.md
+     Metadata: scripts/copilot-headers.json
+     Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
 Show the **architecture summary** from the project overview.
 

@@ -1,9 +1,10 @@
-
 ---
 description: 'Executes all available tests in the project.'
 name: 'run full test'
 agent: 'agent'
 ---
+<!-- STANDALONE FILE — no corresponding .claude/commands/ source.
+     Edit directly. Not managed by scripts/generate-copilot-prompts.py. -->
 Executes all available tests in the project, maps failures to items, and sets affected items back to a problem state.
 
 **Process:**
