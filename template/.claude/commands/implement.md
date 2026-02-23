@@ -46,11 +46,12 @@ For each item that is NOT yet `APPROVED` or `IN_PROGRESS`:
 ### 5. Analyze Each Item
 
 For each item, before writing any code:
-1. **Read the item's tasks** and verification/test plan from the XML
+1. **Read the item's `<tasks>`** and `<verification>` block from the XML
 2. **Read all files** referenced in the item and related features in parallel — read before forming any opinion about what to change
 3. **Understand the current state** of the code that will be modified or tested
-4. **Identify the approach**: what exactly needs to be built, changed, or tested
-5. **Check feature completeness**: if changes touch features with `completeness != FULL` or `test-coverage == NONE`, note the risk (the [REF] items themselves are expected to address this)
+4. **Check `<technical-parameters>`** for constraints, NFRs, and patterns set by DA — implement within those bounds
+5. **Check `<security-impact>`** if `security="true"` — implement each `<mitigation>` explicitly
+6. **Check feature completeness**: if changes touch features with `completeness != FULL` or `test-coverage == NONE`, note the risk (the [REF] items themselves are expected to address this)
 
 ### 6. Implement
 

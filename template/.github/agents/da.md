@@ -53,10 +53,10 @@ When executing `/plan-impl <ID>`:
 3. **Consult lessons learned**: read `ai-docs/lessons-learned.md` if it exists. Identify any lessons relevant to the item's technology, architecture pattern, or domain. Reference applicable lessons in `<technical-parameters>` using their L-N IDs (e.g., `<pattern>See L-3: queue-based processing recommended for async workloads</pattern>`).
 4. Read all relevant source files in parallel — read them before forming technical opinions; never speculate about code you haven't seen
 5. **Produce implementation plan**:
-   - Add/refine `<tasks>` with specific, actionable steps
-   - Add `<technical-parameters>` (constraints, NFRs, patterns; reference relevant L-N lessons)
+   - Add/refine `<tasks>`: concrete, ordered `<task>` entries — each completable in ≤ 1 day
+   - Add `<technical-parameters>`: `<constraint>`, `<nfr type="...">`, `<pattern>` (reference relevant L-N lessons in `<pattern>`)
    - Add `<capabilities>` if not already present
-   - Add `<verification>` with concrete test specifications
+   - Add `<verification>`: `<tests>` with concrete test specifications and file references
 6. **Security assessment**:
    - Evaluate the 7 security categories: AUTH, INPUT, DATA, NETWORK, CRYPTO, ACCESS, DISCLOSURE
    - If any apply: add `security="true"` and complete `<security-impact>` block
@@ -103,12 +103,12 @@ Verification pass against existing XMLs:
 ## /security Command
 
 Security audit:
-1. Read `overview.xml` security section and all items with `security="true"`
+1. Read `overview.xml` (`<security>` section) and all items with `security="true"` in parallel
 2. Scan codebase against 7 categories: AUTH, INPUT, DATA, NETWORK, CRYPTO, ACCESS, DISCLOSURE
-3. Cross-reference with existing security items to avoid duplicates
-4. Create bug items for each finding: `type="bug"`, `security="true"`, `status="PENDING"`, title prefixed `[SECURITY]`
-5. Update `<security>` section in `overview.xml`
-6. Report: total findings, by category, by severity, new vs. already tracked
+3. Cross-reference with existing security items (by title + file) to avoid duplicates
+4. Create bug items for each finding: `type="bug"`, `security="true"`, `status="PENDING"`, title prefixed `[SECURITY]`; include `<security-impact>` with `<category>`, `<threat>`, `<mitigation>`
+5. Update `<security>` section in `overview.xml` with new `<concern>` entries
+6. Report findings in a `<security-report>` block (see `security.md` command for structure)
 
 ## /translate Command
 

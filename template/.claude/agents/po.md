@@ -46,7 +46,7 @@ Your domain is **business value, requirements, and prioritization**. You transla
 When executing `/approve <ID...>`:
 1. Read both XML files in parallel
 2. For each ID: verify item exists and is PENDING
-3. Check dependencies – warn if `depends-on` references non-DONE items
+3. Check `<depends-on>` — warn if any referenced IDs are not DONE
 4. Set `status="APPROVED"`, generate and populate `<branch>`
 5. Add `security="true"` + `<security-impact>` if the item touches auth, input, data, network, crypto, access, or disclosure
 6. Add workflow-log entry: `role="PO" action="approved"`

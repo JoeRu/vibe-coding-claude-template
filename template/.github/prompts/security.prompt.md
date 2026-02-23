@@ -16,7 +16,7 @@ Run a **security audit** of the codebase.
 ## Modes
 
 ### `/security` (no arguments) – Full audit
-1. **Read** `ai-docs/overview.xml` security section and all items with `security="true"` in `overview-features-bugs.xml`.
+1. **Read** `ai-docs/overview.xml` (`<security>` section) and all items with `security="true"` in `overview-features-bugs.xml` in parallel.
 2. **Scan the codebase** against all 7 security categories:
    - **AUTH**: Authentication, authorization, session management, token handling
    - **INPUT**: Injection (SQL, XSS, command), validation, sanitization
@@ -25,25 +25,41 @@ Run a **security audit** of the codebase.
    - **CRYPTO**: Key management, hashing, signing, random number generation
    - **ACCESS**: File permissions, path traversal, privilege escalation
    - **DISCLOSURE**: Error messages, stack traces, debug endpoints, version exposure
-3. **Cross-reference** with existing security items to avoid duplicates.
+3. **Cross-reference** with existing security items (by title + file) to avoid duplicates.
 4. **Create bug items** for each new finding:
    - `type="bug"`, `security="true"`, `status="PENDING"`
    - Title prefixed with `[SECURITY]`
    - `priority="HIGH"` minimum, `CRITICAL` if exploitable without auth or affects data integrity
-   - Full `<security-impact>` block
-5. **Update** `<security>` section in `overview.xml` with new concerns.
-6. **Update changelog**.
-7. **Report** summary: total findings, by category, by severity, new vs. already tracked.
+   - Full `<security-impact>` block with `<category>`, `<threat>`, `<mitigation>`
+5. **Update** the `<security>` section in `overview.xml` with new `<concern>` entries.
+6. **Update `<changelog>`**.
+7. **Report** your findings using this structure:
+
+```xml
+<security-report date="YYYY-MM-DD">
+  <summary>N findings across X categories. N new items created, N already tracked.</summary>
+  <findings>
+    <finding category="AUTH|INPUT|DATA|NETWORK|CRYPTO|ACCESS|DISCLOSURE"
+             severity="CRITICAL|HIGH|MEDIUM" item-id="N">
+      Short description + file reference
+    </finding>
+  </findings>
+  <coverage>
+    <category name="AUTH" status="AUDITED|CLEAN|SKIPPED" />
+    <!-- repeat for all 7 -->
+  </coverage>
+</security-report>
+```
 
 ### `/security <area>` – Focused audit
-Same process but limited to the specified area (e.g., "auth" → AUTH category, "api" → INPUT + NETWORK).
+Same process limited to the specified area (e.g., "auth" → AUTH category, "api" → INPUT + NETWORK).
 
 ### `/security status` – Security posture overview
-1. Read both XML files.
+1. Read the `<security>` section of `overview.xml` and all `security="true"` items from `overview-features-bugs.xml`.
 2. Report:
-   - Open concerns in `overview.xml`
+   - Open `<concern>` entries in `overview.xml`
    - Security items by status (PENDING, IN_PROGRESS, DONE)
-   - Uncovered areas (categories with no items or old audits)
+   - Uncovered categories (no items or last audit > 30 days ago)
 
 ## Important
 

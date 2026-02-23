@@ -48,12 +48,12 @@ Your domain is **process governance, flow, and impediment removal**. You own the
 When executing `/start <ID>`:
 1. Read both XML files in parallel
 2. Verify item exists with `status="PLANNED"` or `status="APPROVED"` (simple items may skip PLANNED)
-3. Check `depends-on`: warn if referenced items are not DONE
+3. Check `<depends-on>`: warn if any referenced IDs are not DONE
 4. Check active BLOCKER items that list this item in `<blocks>`
 5. Set `status="IN_PROGRESS"`
-6. Add workflow-log entry: `role="SM" action="started" from-status="PLANNED" to-status="IN_PROGRESS"`
-7. Inform user: item ID, title, branch name, tasks to complete
-8. Update changelog
+6. Add `<workflow-log>` entry: `role="SM" action="started" from-status="PLANNED" to-status="IN_PROGRESS"`
+7. Inform user: item ID, `<title>`, `<branch>`, and `<tasks>` to complete
+8. Update `<changelog>`
 
 ## /archive Command
 

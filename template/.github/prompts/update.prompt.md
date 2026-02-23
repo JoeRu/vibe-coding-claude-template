@@ -15,27 +15,39 @@ Run code analysis in **update mode** as described in `CLAUDE-implementation-plan
 
 ## Steps
 
-1. **Read** both XML files.
-2. **Scan the codebase** (same analysis steps as `/init`).
-3. **Step 1 – Drift detection on overview.xml:**
-   - Compare architecture, system requirements, external dependencies, interfaces, environments, security against current codebase
-   - Update any mismatches
-4. **Step 2 – Feature verification:**
-   - Verify files still exist for each feature in `<completed-features>`
+1. **Read** both XML files in parallel.
+2. **Scan the codebase** (same analysis steps as `/init_overview`).
+3. **Step 1 – Drift detection on `overview.xml`:**
+   - Compare `<architecture>`, `<system-requirements>`, `<external-dependencies>`, `<interfaces>`, `<environments>`, `<security>` against current codebase
+   - Update any mismatches in place
+4. **Step 2 – Feature verification in `<completed-features>`:**
+   - Verify `<file>` entries still exist for each `<feature>`
    - Check for new files belonging to existing features
-   - Re-assess completeness and test-coverage
-   - Discover new features not yet in overview.xml → add them + create `[REF]` items if needed
-   - Flag STALE features where files were deleted/renamed
-5. **Step 3 – Item verification on overview-features-bugs.xml:**
-   - Verify referenced files still exist
-   - Check `depends-on` and `parent` references are still valid
+   - Re-assess `completeness` and `test-coverage` attributes
+   - Discover new features not yet in `overview.xml` → add them + create `[REF]` items if needed
+   - Flag `STALE` features where `<file>` entries were deleted/renamed
+5. **Step 3 – Item verification on `overview-features-bugs.xml`:**
+   - Verify `<file>` references in `<r>` blocks still exist
+   - Check `<depends-on>` and `parent` references are still valid
    - Flag stale items (PENDING/APPROVED for too long without progress)
-6. **Step 4 – Report** a verification summary to the user using the format from the chapter:
-   - overview.xml changes
-   - Feature verification results (OK / changed / STALE / NEW)
-   - Item warnings (stale, broken refs)
-   - Count of changes made and items created
-7. **Update changelog** in `overview-features-bugs.xml`.
+6. **Step 4 – Report** your findings using this structure:
+
+```xml
+<drift-report date="YYYY-MM-DD">
+  <summary>N overview.xml sections updated. N features verified (X OK, X changed, X STALE, X NEW). N item warnings.</summary>
+  <changes>
+    <change area="architecture|security|dependencies|..." description="What changed" />
+  </changes>
+  <feature-verification>
+    <feature id="CF-N" status="OK|CHANGED|STALE|NEW" note="optional detail" />
+  </feature-verification>
+  <item-warnings>
+    <warning item-id="N" reason="stale|broken-ref|..." />
+  </item-warnings>
+</drift-report>
+```
+
+7. **Update `<changelog>`** in `overview-features-bugs.xml`.
 
 ## Important
 

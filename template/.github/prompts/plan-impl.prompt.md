@@ -15,31 +15,29 @@ Attach an **implementation plan** to an APPROVED item (DA role). Transitions sta
 
 ## Steps
 
-1. **Read** `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml`.
-2. **Parse** item ID from `$ARGUMENTS`. Verify the item exists and has `status="APPROVED"`.
-3. **Analyze** the item's title, justification, and existing tasks against the codebase.
-4. **Define technical parameters** (DA-CAP-01):
-   - Identify constraints (performance, memory, compatibility, licensing)
-   - Define NFRs (non-functional requirements: latency, availability, security)
-   - Recommend patterns and implementation approach
-5. **Create or refine tasks** – break down into concrete, ordered steps. Each task should be completable by a single developer in ≤ 1 day.
-6. **Run security assessment** (DA-CAP-04):
-   - Evaluate threat categories: AUTH, INPUT, DATA, NETWORK, CRYPTO, ACCESS, DISCLOSURE
-   - If any apply: ensure `security="true"` and `<security-impact>` block are present
-7. **Check for enabler items** – if the item requires infrastructure/tooling not yet in place, create ENABLER items (PENDING) and reference them in `depends-on`.
-8. **Add optional role-context blocks** to the item XML:
-   - `<capabilities>` – list technical/organizational capabilities this item delivers
-   - `<technical-parameters>` – constraints, NFRs, patterns
-   - `<acceptance-criteria>` – if not already present, derive from justification
-9. **Set** `status="PLANNED"`.
-10. **Add workflow-log entry**: `role="DA" action="planned" from-status="APPROVED" to-status="PLANNED"`.
-11. **Update changelog** in `overview-features-bugs.xml`.
-12. **Confirm** to user: item ID, title, PLANNED, list of tasks, any new enabler items created.
+1. **Read** `ai-docs/overview.xml`, `ai-docs/overview-features-bugs.xml`, and `ai-docs/implementation-plan-template.xml` in parallel.
+2. **Locate the item** by `$ARGUMENTS` ID. Verify `status="APPROVED"`.
+3. **Analyze** the item's `<title>`, `<justification>`, and existing `<tasks>` against the codebase. Read source files referenced in or related to the item in parallel — never speculate about code you haven't read.
+4. **Consult** `ai-docs/lessons-learned.md` if it exists. Identify lessons relevant to the item's technology, architecture, or domain; reference applicable L-N IDs in `<technical-parameters>`.
+5. **Populate `<technical-parameters>`**:
+   - `<constraint>` — hard limits (performance, memory, compatibility, licensing)
+   - `<nfr type="performance|reliability|scalability|maintainability">` — measurable NFRs
+   - `<pattern>` — recommended implementation approach; cite relevant L-N lessons here
+6. **Create or refine `<tasks>`** — concrete, ordered `<task>` entries; each completable by one developer in ≤ 1 day.
+7. **Run security assessment** — evaluate all 7 categories: AUTH, INPUT, DATA, NETWORK, CRYPTO, ACCESS, DISCLOSURE. If any apply: set `security="true"` and populate `<security-impact>`. Note the evaluation outcome even when no concerns apply.
+8. **Create ENABLER items** if technical prerequisites are missing; add their IDs to `<depends-on>`.
+9. **Add optional context blocks** if not already present:
+   - `<capabilities>` — capabilities this item delivers
+   - `<acceptance-criteria>` — derive from `<justification>` if missing
+10. **Set** `status="PLANNED"`.
+11. **Add `<workflow-log>` entry**: `role="DA" action="planned" from-status="APPROVED" to-status="PLANNED"`.
+12. **Update `<changelog>`** in `overview-features-bugs.xml`.
+13. **Confirm** to user: item ID, `<title>`, status PLANNED, `<tasks>` list, any new ENABLER IDs.
 
 ## Important
 
-- Only APPROVED items can be planned
-- Tasks must be specific and actionable — avoid vague tasks like "implement the feature"
-- Security assessment is mandatory; even if no concerns apply, note that it was evaluated
-- If enabler items are created, they must be APPROVED before this item can start
-- Keep XML valid
+- Only `status="APPROVED"` items can be planned
+- `<task>` entries must be specific and actionable — avoid vague entries like "implement the feature"
+- Security assessment covers every item; record the evaluation even when no categories apply
+- ENABLER items must be APPROVED before this item can start
+- Keep XML valid at all times

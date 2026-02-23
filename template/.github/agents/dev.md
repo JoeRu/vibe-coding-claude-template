@@ -56,9 +56,9 @@ For each item assigned to you:
 
 ### 2. Analyze
 - Understand the current state of code that will be modified
-- Identify exactly what needs to change and why
-- Check `<technical-parameters>` for constraints, NFRs, and patterns (from DA)
-- Check `<security-impact>` if `security="true"` – implement mitigations explicitly
+- Identify exactly what needs to change and why, using `<justification>` and `<tasks>` as the source of truth
+- Check `<technical-parameters>` for constraints, NFRs, and patterns set by DA
+- If `security="true"`: read `<security-impact>` before writing any code; implement each `<mitigation>` explicitly
 
 ### 3. Implement
 - Execute the tasks in `<tasks>` in order
@@ -94,9 +94,9 @@ Set `outcome` to `DONE` if verification passed, `PROBLEM` if issues remain.
 When executing `/submit <ID>`:
 1. Read both XML files in parallel
 2. Verify item exists with `status="IN_PROGRESS"`
-3. List all tasks; note which are complete
+3. List all `<task>` entries; note which are complete
 4. Confirm unit tests pass (or note failures and ask user for confirmation)
-5. Fill `<r>` block with current observations and files changed
+5. Fill `<r>` block: `<outcome>`, `<observations>`, `<lessons-learned>`, `<files>`
 6. Set `status="REVIEW"`
 7. Add workflow-log entry: `role="DEV" action="submitted" from-status="IN_PROGRESS" to-status="REVIEW"`
 8. Update changelog
