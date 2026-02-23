@@ -30,6 +30,16 @@
   - epic         = XL grouping of features; has acceptance-criteria, no tasks
   - enabler      = technical prerequisite mapped to a feature (mapped-to-feature attr)
   - problem      = systemic/environmental issue (not a code defect)
+  - sprint       = lightweight grouping of 2-5 items (no PO gates); one active at a time
+
+  File split:
+  - overview-features-bugs.xml       = active items + last 30 changelog entries
+  - overview-features-bugs-archive.xml = archived items + full changelog history
+  Archive file root element: <plan-archive>
+    <metadata><created/><updated/><source/></metadata>
+    <archive><!-- archived <item> elements --></archive>
+    <changelog-history><!-- <entry> elements older than 30 most recent --></changelog-history>
+  </plan-archive>
 
   Status lifecycle (full):
   PENDING ──→ APPROVED ──→ PLANNED ──→ IN_PROGRESS ──→ REVIEW ──→ DONE ──→ ARCHIVED
@@ -51,6 +61,9 @@
     <updated>2026-01-01</updated>
     <owner>Name or Team</owner>
     <repository>https://github.com/org/repo</repository>
+    <!-- Full-test trigger counter: incremented on each /archive, reset after /full-test -->
+    <done-since-last-fulltest>0</done-since-last-fulltest>
+    <last-fulltest-date></last-fulltest-date>
   </metadata>
 
   <!-- ================================================================== -->
@@ -500,6 +513,33 @@
   </release>
 
   <!-- ================================================================== -->
+  <!-- EXAMPLE: SPRINT item (lightweight grouping, 2-5 items, no PO gate) -->
+  <!-- Created automatically by /implement with >= 2 APPROVED items, or   -->
+  <!-- manually via /sprint create. Closed via /sprint close.             -->
+  <!-- Only one SPRINT can be ACTIVE at a time.                           -->
+  <!-- ================================================================== -->
+
+  <sprint id="SPR-1" status="ACTIVE" type="SPRINT" started="2026-04-01">
+    <title>Sprint 1 – OAuth integration and session management</title>
+
+    <scope>
+      <item-ref id="11" type="feature" status="DONE">OAuth2 Provider Integration</item-ref>
+      <item-ref id="12" type="feature" status="IN_PROGRESS">Session Management &amp; Token Refresh</item-ref>
+    </scope>
+
+    <gates>
+      <gate name="code-complete"  status="PENDING" date="" owner="SM" />
+      <gate name="full-test-pass" status="PENDING" date="" owner="TST" />
+    </gates>
+
+    <release-test>
+      <run date="" result="">
+        <total></total><passed></passed><failed></failed>
+      </run>
+    </release-test>
+  </sprint>
+
+  <!-- ================================================================== -->
   <!-- EXAMPLE: BLOCKER item                                               -->
   <!-- ================================================================== -->
 
@@ -522,6 +562,7 @@
     <entry date="2026-01-01">v3.0 – Initial plan created</entry>
     <entry date="2026-01-15">v3.1 – Added parent/child, acceptance-criteria, analysis, complexity</entry>
     <entry date="2026-02-21">v4.0 – Added PLANNED/REVIEW/FAILED/ARCHIVED states; new types: requirement, epic, enabler, problem, security-item, release, blocker; optional capabilities, technical-parameters, workflow-log elements</entry>
+    <entry date="2026-02-23">v4.1 – Archive split: archived items move to separate archive file; changelog rotation (≤30 entries in main file); lessons-learned knowledge base (DA-owned); SPRINT type (lightweight grouping); full-test counter in metadata; done-since-last-fulltest trigger</entry>
   </changelog>
 
 </implementation-plan>

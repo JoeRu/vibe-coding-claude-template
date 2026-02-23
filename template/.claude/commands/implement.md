@@ -21,6 +21,14 @@ This command takes items through the full lifecycle: analyze → approve (if nee
 - Reject items that are already `DONE`, `DENIED`, or archived
 - Respect the 5-item limit per interaction. If more than 5 items to process, process the first 5 and ask to continue.
 
+### 2b. Sprint Auto-Grouping (when no arguments and ≥ 2 APPROVED items)
+
+If `$ARGUMENTS` is empty and there are **2 or more** APPROVED items AND no active SPRINT exists:
+- Check if a SPRINT (`status="ACTIVE"`) already exists — if yes, skip this step.
+- **2–5 items**: automatically create a SPRINT grouping before starting work. Use the SM agent's `/sprint create` logic: assign next SPR-N ID, set `status="ACTIVE"`, list all items in `<scope>`.
+- **> 5 items**: process only the first 5 (per the limit above); do not create a sprint automatically for oversized batches — suggest the user use `/sprint create` or `/release` explicitly.
+- Inform the user: *"Created Sprint SPR-N grouping N items. Proceeding with implementation."*
+
 ### 3. Auto-Approve if Needed
 
 For each item that is NOT yet `APPROVED` or `IN_PROGRESS`:

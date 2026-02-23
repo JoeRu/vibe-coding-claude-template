@@ -11,9 +11,16 @@ A separate `overview.xml` captures the project's architectural baseline – stru
 | File | Purpose | When updated |
 |---|---|---|
 | `ai-docs/overview.xml` | Project architecture, dependencies, environments, security, completed features | Initial analysis + every archival |
-| `ai-docs/overview-features-bugs.xml` | Active and pending items (features, bugs, refactoring, tech-debt) | Every interaction that changes scope or code |
+| `ai-docs/overview-features-bugs.xml` | Active items (features, bugs, refactoring, tech-debt) — max 30 changelog entries | Every interaction that changes scope or code |
+| `ai-docs/overview-features-bugs-archive.xml` | Fully archived items + full changelog history | Created on first `/archive`; updated on each archival |
+| `ai-docs/lessons-learned.md` | Aggregated lessons extracted from DONE items | Created on first `/archive` with non-trivial lessons |
 | `ai-docs/implementation-plan-template-v3.1.xml` | Schema reference (do not edit) | Never |
 | `ai-docs/` | All other markdown and planning documents | As needed |
+
+**Session Start:** Load only `overview.xml` and `overview-features-bugs.xml` (active items). Load `overview-features-bugs-archive.xml` only when:
+- `/status <ID>` is called for an ID not found in the active file
+- `/lessons` searches for historical lessons
+- `/update` checks drift against archived features
 
 **Also read:** `CLAUDE-roles-chapter.md` for role definitions, capability tables, and the end-to-end workflow swimlane.
 
@@ -336,7 +343,7 @@ The `PLANNED` and `REVIEW` states are optional for simple items. Simple bugs and
 | `enabler` | MEDIUM | `/feature --enabler` | Technical prerequisite mapped to a feature |
 | `problem` | HIGH | `/bug --problem` | Systemic or environmental issue (not a code bug) |
 
-RELEASE and BLOCKER items are managed via `/release` and `/blockers` commands respectively. They live in the same `overview-features-bugs.xml` file but follow a different structure (see `CLAUDE-roles-chapter.md`).
+RELEASE, SPRINT, and BLOCKER items are managed via `/release`, `/sprint`, and `/blockers` commands respectively. They live in the same `overview-features-bugs.xml` file but follow a different structure (see `CLAUDE-roles-chapter.md`).
 
 ### 5. ID Assignment
 
@@ -397,16 +404,19 @@ Soft limit: **5 items** created or updated per response.
 
 ### 10. Archival
 
-Completed and denied items are moved to the `<archive>` block in `overview-features-bugs.xml` and simultaneously registered in `overview.xml`.
+Completed and denied items are moved **out of** `overview-features-bugs.xml` and **into** `ai-docs/overview-features-bugs-archive.xml`, while simultaneously being registered in `overview.xml`.
 
 **When to archive:**
 - `DONE` items: when the item AND all its sub-items are DONE, AND no active item has a `depends-on` referencing it
 - `DENIED` items: immediately (no dependencies possible)
 
-**Archival process (both files updated in one step):**
+**Archival process:**
 
-1. **Move** the item from the active section to `<archive>` in `overview-features-bugs.xml`:
+1. **Initialize** `overview-features-bugs-archive.xml` if it does not exist (see Files & Locations).
+
+2. **Move** the item from the active section of `overview-features-bugs.xml` to `<archive>` in `overview-features-bugs-archive.xml`:
    ```xml
+   <!-- In overview-features-bugs-archive.xml -->
    <archive>
      <item id="1" status="DONE" archived="2026-02-08" ...>
        <!-- full item preserved for history -->
@@ -414,7 +424,9 @@ Completed and denied items are moved to the `<archive>` block in `overview-featu
    </archive>
    ```
 
-2. **Add** a `<completed-features>` entry in `overview.xml` (for DONE items only):
+3. **Lessons extraction**: for DONE items with non-trivial `<r><lessons-learned>` content, extract and append to `ai-docs/lessons-learned.md` under the appropriate category (Technologie, Architektur, Sicherheit, Testing, Prozess) with a sequential L-N ID. Skip trivially empty lessons.
+
+4. **Add** a `<completed-features>` entry in `overview.xml` (for DONE items only):
    ```xml
    <completed-features>
      <feature id="CF-1" completed="2026-02-08" source-item="1">
@@ -427,9 +439,11 @@ Completed and denied items are moved to the `<archive>` block in `overview-featu
    </completed-features>
    ```
 
-3. **Update** `<metadata><updated>` in `overview.xml` with the current date
+5. **Changelog rotation**: after moving items, if `<changelog>` in `overview-features-bugs.xml` has more than 30 entries, move the oldest (beyond 30) to `<changelog-history>` in `overview-features-bugs-archive.xml`.
 
-4. **Update** architecture, dependencies, or security sections in `overview.xml` if the archived item introduced changes to any of these
+6. **Update** `<metadata><updated>` in `overview.xml` and both plan files.
+
+7. **Update** architecture, dependencies, or security sections in `overview.xml` if the archived item introduced changes.
 
 **Do not archive** items that are still referenced by active `depends-on`.
 
@@ -704,7 +718,7 @@ The user can use slash commands as shortcuts. When a message starts with a slash
 |---|---|
 | `/status <ID>` | Show current status, tasks, and dependencies of an item |
 | `/list [filter]` | List items – filter by status, type, or priority |
-| `/archive` | Archive all eligible DONE/DENIED items, update security section in overview.xml |
+| `/archive` | Archive all eligible DONE/DENIED items to archive file, extract lessons, rotate changelog, trigger full-test check |
 | `/check-deps <ID>` | Show dependency tree and any blocking items |
 | `/board` | Kanban-style view of all items grouped by status column |
 
@@ -776,15 +790,25 @@ The user can use slash commands as shortcuts. When a message starts with a slash
   - Uncovered areas: CRYPTO (no items), NETWORK (last audit: 30 days ago)
 ```
 
-### Release and Blocker Commands
+### Release, Sprint, and Blocker Commands
 
 | Command | Action |
 |---|---|
-| `/release <version> [--target <date>]` | Create RELEASE item; link features/bugs to scope; manage gates |
+| `/release <version> [--target <date>]` | Create RELEASE item; link features/bugs to scope; manage full gates (PO approval required) |
+| `/sprint` | Show active sprint status |
+| `/sprint create [ID...]` | Group 2–5 APPROVED items into a SPRINT (lightweight, no PO gates) |
+| `/sprint close` | Close sprint when all scope items DONE; triggers full-test recommendation |
 | `/blockers` | List active BLOCKER items |
 | `/blockers <title> --blocks <ID,...>` | Create new BLOCKER item |
 | `/blockers resolve <ID>` | Resolve a BLOCKER and unblock dependent items |
 | `/translate <ID>` | Decompose a REQUIREMENT item into EPIC + FEATURE/ENABLER children |
+
+### Knowledge Base Commands
+
+| Command | Action |
+|---|---|
+| `/lessons` | Show all lessons learned, grouped by category |
+| `/lessons <category>` | Filter lessons by category (`technologie`, `architektur`, `sicherheit`, `testing`, `prozess`) |
 
 ### Plan Overview Commands
 
@@ -819,6 +843,58 @@ The user can use slash commands as shortcuts. When a message starts with a slash
 4. **Still update changelog** – every command that modifies the plan gets a changelog entry
 5. **Confirm creation** – after processing, show: item ID, title, type, priority, status
 6. **Unknown commands** – if a slash command is not recognized, list available commands
+
+## Knowledge Base
+
+Lessons learned are accumulated in `ai-docs/lessons-learned.md` during every `/archive` run.
+
+**Format:** Markdown, organized by category: `Technologie`, `Architektur`, `Sicherheit`, `Testing`, `Prozess`.
+
+**Lesson entry:** `- **L-N** (YYYY-MM-DD, item-ID): Lesson text.`
+
+**DA consults lessons before every `/plan-impl`**: reads `lessons-learned.md`, identifies relevant L-N entries, and references them in `<technical-parameters>` of the implementation plan. This prevents repeating past mistakes and propagates institutional knowledge.
+
+**Only non-trivial lessons are recorded.** Skip empty, vague, or uninformative content ("no issues", "works as expected", etc.).
+
+## Sprint Grouping and Full-Test Trigger
+
+### SPRINT vs. RELEASE
+
+| Aspect | SPRINT | RELEASE |
+|---|---|---|
+| Scope | 2–5 items | Any number |
+| PO gates | None | scope-freeze + release-approval |
+| Auto-created | Yes (by `/implement` with ≥ 2 APPROVED) | No (manual `/release`) |
+| Full-test trigger | On close | On full-test-pass gate |
+
+### Auto-Creation Rules (in `/implement`)
+
+| APPROVED items | Action |
+|---|---|
+| 1 item | Start directly, no sprint |
+| 2–5 items, no active sprint | Auto-create SPRINT, then proceed |
+| > 5 items | Process first 5; suggest `/sprint create` or `/release` |
+
+### Full-Test Counter
+
+`overview-features-bugs.xml` metadata tracks two fields:
+
+```xml
+<metadata>
+  ...
+  <done-since-last-fulltest>0</done-since-last-fulltest>
+  <last-fulltest-date></last-fulltest-date>
+</metadata>
+```
+
+**Trigger conditions** (checked after every `/archive`):
+- `done-since-last-fulltest` ≥ 5, OR
+- `last-fulltest-date` is empty or older than 14 days, OR
+- An active SPRINT was completed in this `/archive` run
+
+When triggered, `/archive` outputs: *"N items archived since last full test (last: DATE). Recommendation: run `/full-test`."*
+
+After a successful full-test run, reset the counter to 0 and update `last-fulltest-date`.
 
 ## Important Reminders
 

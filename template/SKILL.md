@@ -1,0 +1,185 @@
+# Skills Reference
+
+This chapter defines all user-invocable skills (slash commands) in the vibe-coding workflow, their owning agents, and how they connect to the lifecycle.
+
+Read this alongside `AGENT.md` (agent definitions) and `CLAUDE-implementation-plan-chapter.md` (full command specifications).
+
+Skills are implemented as slash command files in `.claude/commands/`. Each skill file contains the full execution logic for that command.
+
+---
+
+## Skill Registry
+
+### Item Creation Skills
+
+These skills create new items with `status="PENDING"`. The user must approve before implementation begins. Handled by the orchestrator for simple items; delegate to `po` or `da` for complex capability translation.
+
+| Skill | Command file | Agent | Default type | Default priority |
+|---|---|---|---|---|
+| `/feature <desc>` | `feature.md` | PO | `feature` | MEDIUM |
+| `/bug <desc>` | `bug.md` | PO / TST | `bug` | HIGH |
+| `/refactor <desc>` | `refactor.md` | DA | `refactoring` | MEDIUM |
+| `/debt <desc>` | `debt.md` | DA | `tech-debt` | LOW |
+
+**Inline modifiers** (append after description):
+
+| Modifier | Effect |
+|---|---|
+| `!critical`, `!high`, `!medium`, `!low` | Override priority |
+| `!security` | Mark `security="true"`, add `<security-impact>` block |
+| `@<ID>` | Set `depends-on` to item ID |
+| `^<ID>` | Set `parent` (sub-item of epic) |
+| `--requirement` | Create as REQUIREMENT type |
+| `--epic` | Create as EPIC type (XL, requires decomposition) |
+| `--enabler` | Create as ENABLER type |
+| `--problem` | Create as PROBLEM type |
+
+---
+
+### Lifecycle Transition Skills
+
+These skills move items through the workflow. Each is owned by a specific agent.
+
+```
+PENDING ──[/approve]──► APPROVED ──[/plan-impl]──► PLANNED ──[/start]──► IN_PROGRESS
+   │                                                                           │
+[/deny]                                                                   [/submit]
+   │                                                                           │
+DENIED                                                                      REVIEW
+                                                                        ┌──────┴──────┐
+                                                                     [/pass]       [/fail]
+                                                                        │             │
+                                                                       DONE         FAILED
+                                                                                  + new BUG
+```
+
+| Skill | Command file | Agent | Transition | Gate condition |
+|---|---|---|---|---|
+| `/approve <ID...>` | `approve.md` | PO | PENDING → APPROVED | User confirms; branch name generated |
+| `/deny <ID> [reason]` | `deny.md` | PO | PENDING → DENIED | Rejected at gate; archived immediately |
+| `/plan-impl <ID>` | `plan-impl.md` | DA | APPROVED → PLANNED | Implementation plan + security assessment attached |
+| `/start <ID>` | `start.md` | SM | PLANNED → IN_PROGRESS | No active blockers; deps resolved |
+| `/submit <ID>` | `submit.md` | DEV | IN_PROGRESS → REVIEW | Unit tests pass; tasks complete |
+| `/pass <ID>` | `pass.md` | TST | REVIEW → DONE | All tests pass; acceptance criteria met |
+| `/fail <ID> [reason]` | `fail.md` | TST | REVIEW → FAILED | Verification failed; BUG item created |
+
+---
+
+### Item Management Skills
+
+| Skill | Command file | Agent | Effect |
+|---|---|---|---|
+| `/archive` | `archive.md` | SM | Move DONE/DENIED items to archive file; extract lessons; rotate changelog; trigger full-test check |
+| `/sprint` | `sprint.md` | SM | Show active sprint status |
+| `/sprint create [ID...]` | `sprint.md` | SM | Group 2–5 APPROVED items into a lightweight SPRINT |
+| `/sprint close` | `sprint.md` | SM | Close sprint when all scope items DONE; trigger full-test recommendation |
+| `/release <version> [--target <date>]` | `release.md` | SM | Create formal RELEASE item (PO gates required) |
+| `/blockers` | `blockers.md` | SM | List active BLOCKER items |
+| `/blockers <title> --blocks <ID,...>` | `blockers.md` | SM | Create new BLOCKER item |
+| `/blockers resolve <ID>` | `blockers.md` | SM | Resolve BLOCKER, unblock dependent items |
+| `/translate <ID>` | `translate.md` | DA | Decompose REQUIREMENT → EPIC + FEATUREs + ENABLERs |
+| `/lessons [category]` | `lessons.md` | DA (read) | Show lessons-learned knowledge base; optional category filter |
+
+---
+
+### Query Skills (orchestrator, no delegation)
+
+These are read-only. No agent delegation required; the orchestrator handles them directly.
+
+| Skill | Command file | Effect |
+|---|---|---|
+| `/status <ID>` | `status.md` | Show item status, tasks, and dependencies |
+| `/list [filter]` | `list.md` | List items filtered by status, type, or priority |
+| `/board` | `board.md` | Kanban-style view of all items by status column |
+| `/check-deps <ID>` | `check-deps.md` | Show dependency tree and blocking items |
+| `/plan_summary` | `plan_summary.md` | Counts by status/type/priority + next actionable items |
+| `/overview` | `overview.md` | Architecture summary from overview.xml |
+
+---
+
+### Analysis Skills
+
+| Skill | Command file | Agent | Effect |
+|---|---|---|---|
+| `/init_overview` | `init_overview.md` | DA | Full codebase scan; generate both XML files |
+| `/update` | `update.md` | DA | Verify + sync XMLs against current codebase |
+
+---
+
+### Security Skills
+
+| Skill | Command file | Agent | Effect |
+|---|---|---|---|
+| `/security` | `security.md` | DA | Full security audit across all 7 categories |
+| `/security <area>` | `security.md` | DA | Focused audit (e.g., `/security auth`, `/security api`) |
+| `/security status` | `security.md` | DA | Current security posture: open concerns, coverage |
+
+---
+
+## Capability Matrix
+
+Agent capabilities are not user-invocable skills — they are the internal competencies that agents use when executing skills. This table maps capabilities to the skills that exercise them.
+
+| Capability | Agent | Exercised by skills |
+|---|---|---|
+| `requirement-elicitation` | PO | `/feature --requirement`, conversational requests |
+| `priority-assignment` | PO | `/feature`, `/approve`, modifiers |
+| `capability-translation` | PO + DA | `/feature`, `/plan-impl` |
+| `backlog-planning` | PO | `/feature`, `/bug`, `/refactor`, `/debt` |
+| `acceptance-definition` | PO | `/feature`, `/approve` |
+| `stakeholder-approval` | PO | `/approve`, `/deny` |
+| `scope-negotiation` | PO | `/deny`, conversational |
+| `status-management` | SM | `/start`, `/archive` |
+| `process-sync` | SM | `/start`, `/blockers` |
+| `blocker-resolution` | SM | `/blockers`, `/blockers resolve` |
+| `release-management` | SM | `/release` |
+| `sprint-management` | SM | `/sprint`, `/sprint create`, `/sprint close` |
+| `archive-management` | SM | `/archive` |
+| `dependency-tracking` | SM | `/start`, `/check-deps` |
+| `technical-parameter-definition` | DA | `/plan-impl` |
+| `enabler-creation` | DA | `/plan-impl`, `/translate` |
+| `architecture-documentation` | DA | `/init_overview`, `/update`, `/archive` |
+| `security-assessment` | DA | `/security`, `/plan-impl`, `/approve` |
+| `implementation-planning` | DA | `/plan-impl` |
+| `technical-guidance` | DA | `/plan-impl`, `/translate` |
+| `dependency-analysis` | DA | `/plan-impl`, `/update`, `/check-deps` |
+| `knowledge-base-management` | DA | `/archive` (extraction), `/plan-impl` (consultation), `/lessons` (display) |
+| `code-implementation` | DEV | `/submit` (after implementation) |
+| `unit-test-creation` | DEV | `/submit` |
+| `task-execution` | DEV | `/submit` |
+| `self-verification` | DEV | `/submit` |
+| `result-documentation` | DEV | `/submit` |
+| `branch-management` | DEV | `/approve` (branch generated by PO, used by DEV) |
+| `unit-test-verification` | TST | `/pass`, `/fail` |
+| `integration-testing` | TST | `/pass`, release testing |
+| `release-testing` | TST | `/release` gate: full-test-pass |
+| `bug-creation` | TST | `/fail` |
+| `regression-check` | TST | `/pass` |
+| `test-result-documentation` | TST | `/pass`, `/fail` |
+
+---
+
+## Delegation Rules
+
+1. **Query skills** (`/status`, `/list`, `/board`, `/check-deps`, `/plan_summary`, `/overview`) → orchestrator handles directly, no agent needed.
+
+2. **Simple item creation** (clear description, no capability translation needed) → orchestrator handles directly.
+
+3. **Complex item creation** (requirement decomposition, capability mapping) → delegate to `po` or `da`.
+
+4. **All lifecycle transition skills** → always delegate to the owning agent (see table above).
+
+5. **All analysis and security skills** → always delegate to `da`.
+
+6. **Unknown commands** → list available skills from this registry; do not guess.
+
+---
+
+## Skill Processing Rules (applies to all skills)
+
+1. **Always read both XML files first** — even for creation commands
+2. **Check for duplicates before creating** — search existing items by title, description, and affected area
+3. **Respect the 5-item limit** — if a command would create/update more than 5 items, process the first 5 and ask for confirmation
+4. **Update changelog once per interaction** — one grouped entry, never per item
+5. **Confirm after processing** — show: item ID, title, type, status, priority
+6. **Keep XML valid** — malformed XML breaks the entire workflow

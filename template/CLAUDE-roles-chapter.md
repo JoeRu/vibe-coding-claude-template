@@ -37,10 +37,11 @@ Read this chapter alongside `CLAUDE-implementation-plan-chapter.md`. That chapte
 | `process-sync` | Synchronize work across roles; ensure handoffs happen |
 | `blocker-resolution` | Identify, escalate, and track blockers |
 | `release-management` | Initiate, coordinate, and track release cycles |
-| `archive-management` | Move DONE/DENIED items to archive; maintain changelog |
+| `sprint-management` | Create, track, and close sprint groupings (SPRINT type) |
+| `archive-management` | Move DONE/DENIED items to archive file; maintain changelog rotation |
 | `dependency-tracking` | Track and flag cross-item dependencies and sequencing |
 
-**Item ownership:** All item types (status transitions only), RELEASE, BLOCKER
+**Item ownership:** All item types (status transitions only), RELEASE, SPRINT, BLOCKER
 **Gates:** IN_PROGRESS → REVIEW, REVIEW → DONE (with TST sign-off)
 
 ---
@@ -58,6 +59,7 @@ Read this chapter alongside `CLAUDE-implementation-plan-chapter.md`. That chapte
 | `implementation-planning` | Analyze items and create detailed implementation plans |
 | `technical-guidance` | Add implementation notes, patterns, and constraints to items |
 | `dependency-analysis` | Identify technical dependencies, integration points, and risks |
+| `knowledge-base-management` | Extract, categorize, and maintain lessons learned in `ai-docs/lessons-learned.md` |
 
 **Item ownership:** ENABLER, FEATURE (technical side), TECH-DEBT, SECURITY-ITEM
 **Gates:** APPROVED → PLANNED (implementation plan attached)
@@ -114,6 +116,9 @@ REQUIREMENT (PO)
 RELEASE (SM)
   └── references: FEATURE[], BUG[], ENABLER[]
 
+SPRINT (SM)
+  └── references: FEATURE[], BUG[], ENABLER[] (lightweight grouping, no PO gates)
+
 BLOCKER (SM)
   └── blocks: any item
 ```
@@ -129,7 +134,8 @@ BLOCKER (SM)
 | `tech-debt` | DA | DEV (fix), TST (verify) | Known technical compromise to be addressed |
 | `refactoring` | DA | DEV (build), TST (verify) | Structural improvement without behavior change |
 | `security-item` | DA | DA (plan), DEV (fix), TST (verify) | Security vulnerability or hardening task |
-| `release` | SM | SM, TST | Release coordination ticket |
+| `release` | SM | SM, TST | Release coordination ticket (formal, with PO gates) |
+| `sprint` | SM | SM, TST | Lightweight sprint grouping (2–5 items, no PO gates) |
 | `blocker` | SM | SM, DA, PO | Impediment blocking other items |
 
 ---
@@ -378,6 +384,30 @@ Items in `overview-features-bugs.xml` can carry the following role-context block
 
   <changelog></changelog>
 </release>
+```
+
+### SPRINT item
+
+```xml
+<sprint id="SPR-1" status="ACTIVE" type="SPRINT" started="2026-02-23">
+  <title>Sprint 1 – OAuth integration and session management</title>
+
+  <scope>
+    <item-ref id="11" type="feature" status="DONE">OAuth2 Provider Integration</item-ref>
+    <item-ref id="12" type="feature" status="IN_PROGRESS">Session Management &amp; Token Refresh</item-ref>
+  </scope>
+
+  <gates>
+    <gate name="code-complete"  status="PENDING" date="" owner="SM" />
+    <gate name="full-test-pass" status="PENDING" date="" owner="TST" />
+  </gates>
+
+  <release-test>
+    <run date="" result="">
+      <total></total><passed></passed><failed></failed>
+    </run>
+  </release-test>
+</sprint>
 ```
 
 ### BLOCKER item

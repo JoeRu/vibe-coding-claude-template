@@ -14,6 +14,13 @@
 8. **Update changelog** in `overview-features-bugs.xml`.
 9. **Confirm** to user: item ID, title, IN_PROGRESS, branch name (if set), list of tasks to complete.
 
+## Sprint Suggestion
+
+After verifying the single item to start, check the count of other APPROVED items:
+- If there are **2 or more** other APPROVED items (beyond the one being started) AND no active SPRINT exists:
+  - Offer: *"There are N other APPROVED items. Would you like to group them into a sprint? Run `/sprint create` to group all APPROVED items, or proceed with starting this item alone."*
+  - Do NOT auto-create the sprint — just suggest it. Proceed with starting the requested item.
+
 ## Important
 
 - PLANNED is the expected prior status; APPROVED is also accepted for simple items skipping /plan-impl

@@ -5,8 +5,10 @@ Show the **current status** of a specific item in the implementation plan.
 ## Steps
 
 1. **Read** `ai-docs/overview-features-bugs.xml`.
-2. **Find** the item with the given ID (check both active items and archive).
-3. **Display** the item details:
+2. **Find** the item with the given ID in the active section.
+3. **If not found in active section**: read `ai-docs/overview-features-bugs-archive.xml` and search its `<archive>` block. If found there, display with a note: `[ARCHIVED on YYYY-MM-DD]`.
+4. **If not found anywhere**: inform the user.
+5. **Display** the item details:
    - ID, title, type, status, priority, complexity
    - Branch name (if APPROVED or later)
    - `depends-on` with status of each dependency
@@ -14,8 +16,7 @@ Show the **current status** of a specific item in the implementation plan.
    - Tasks list with completion status
    - Security flag and impact (if applicable)
    - Verification/test plan
-   - Result block `<r>` (if DONE)
-4. If the item is not found, inform the user.
+   - Result block `<r>` (if DONE or ARCHIVED)
 
 ## Output Format
 
@@ -30,3 +31,5 @@ Item {ID} "{title}"
     - [{done/pending}] {task description}
   Verification: {test count} tests planned
 ```
+
+For archived items, prefix the output with `[ARCHIVED on YYYY-MM-DD]`.
