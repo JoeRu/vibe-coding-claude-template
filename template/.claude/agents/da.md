@@ -46,7 +46,7 @@ Your domain is **technical design, security, architecture, and enablement**. You
 
 When executing `/plan-impl <ID>`:
 1. Read both XML files and `ai-docs/implementation-plan-template.xml` in parallel
-2. Verify item exists with `status="APPROVED"`
+2. Verify item exists with `status="APPROVED"` or `status="PENDING"` (PENDING items can be enriched; re-planning updates an existing plan)
 3. **Consult lessons learned**: read `ai-docs/lessons-learned.md` if it exists. Identify any lessons relevant to the item's technology, architecture pattern, or domain. Reference applicable lessons in `<technical-parameters>` using their L-N IDs (e.g., `<pattern>See L-3: queue-based processing recommended for async workloads</pattern>`).
 4. Read all relevant source files in parallel — read them before forming technical opinions; never speculate about code you haven't seen
 5. **Produce implementation plan**:

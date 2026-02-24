@@ -9,33 +9,40 @@ agent: 'agent'
      Metadata: scripts/copilot-headers.json
      Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
-Create a **refactoring item** in the implementation plan. The user's argument is the refactoring description.
+Create a **refactoring item** in the implementation plan. Includes inline technical analysis so the user sees a fully-planned item before `/approve`.
 
 **Arguments:** `$ARGUMENTS` (refactoring description with optional modifiers)
 
-## Steps
+## Phase 1 – Item Creation
 
-1. **Read** `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml`.
+1. **Read** `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml` in parallel.
 2. **Parse** the description from `$ARGUMENTS`. Extract optional modifiers:
    - `!critical`, `!high`, `!medium`, `!low` → override priority (default: MEDIUM)
    - `!security` → mark as security-relevant
    - `@<ID>` → set `depends-on`
    - `^<ID>` → set `parent` (sub-item of epic)
-3. **Search** existing items for duplicates.
-4. **If duplicate found** → inform user, update existing item if needed.
-5. **If no duplicate** → create new item:
-   - `type="refactoring"`, `status="PENDING"`, default `priority="MEDIUM"`
-   - Assign next sequential ID
-   - Estimate complexity (S/M/L/XL)
-   - If `!security`: add `security="true"`, add `<security-impact>` block
-   - Add justification, tasks, verification section
-6. **Impact check**: identify affected features. Warn if any have incomplete mapping or missing tests.
-7. **Update changelog** in `overview-features-bugs.xml`.
-8. **Confirm** to user: item ID, title, type, priority, status.
+3. **Search** existing items for duplicates. If found: inform user, update if needed; stop.
+4. **Create the skeleton item**: `type="refactoring"`, `status="PENDING"`, `priority="MEDIUM"` (default), next sequential ID, estimated complexity.
+5. **Update `<changelog>`** and write the item to XML.
+
+## Phase 2 – DA Enrichment (inline, before showing to user)
+
+6. **Read affected source files in parallel** — files identified from the description and related features in `overview.xml`.
+7. **Consult** `ai-docs/lessons-learned.md` for applicable L-N IDs (refactoring patterns, architecture lessons).
+8. **Populate `<justification>`** — describe the current problem and the structural improvement.
+9. **Populate `<tasks>`** — concrete, ordered `<task>` entries; focus on safe, incremental steps that preserve behavior.
+10. **Populate `<technical-parameters>`** — constraints (backward-compat, no behavior change), patterns (e.g., extract-method, dependency-inversion); cite relevant L-N IDs.
+11. **Populate `<verification>`** — `<tests>` proving behavior is unchanged after refactoring; regression tests are especially important here.
+12. **Security assessment** — refactoring can introduce regressions in security controls; evaluate all 7 categories.
+13. **Impact check**: identify features that share the affected files; warn if `completeness != FULL` or `test-coverage == NONE`.
+
+## Output
+
+Display the enriched item for user review. Stays `status="PENDING"` — run `/approve <ID>` to proceed.
 
 ## Important
 
-- Never skip `status="PENDING"`
+- Items stay PENDING until the user runs `/approve`
+- Refactoring tasks must be provably behavior-preserving — verification is critical
 - Always search for duplicates first
-- Respect the 5-item-per-interaction limit
-- Keep XML valid
+- Keep XML valid at all times

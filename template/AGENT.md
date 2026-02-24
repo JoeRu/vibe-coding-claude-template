@@ -28,9 +28,11 @@ When a slash command arrives, route to the owning agent:
 
 | Command | Agent |
 |---|---|
-| `/feature`, `/approve`, `/deny` | `po` |
+| `/feature`, `/bug`, `/approve`, `/deny` | `po` (or orchestrator inline for simple items) |
+| `/refactor`, `/debt` | `da` (or orchestrator inline for simple items) |
+| `/run [IDs]` | orchestrator (inline; chains DEV + TST logic) |
 | `/start`, `/archive`, `/release`, `/blockers`, `/sprint` | `sm` |
-| `/plan-impl`, `/security`, `/init_overview`, `/update`, `/translate`, `/refactor`, `/debt`, `/lessons` | `da` |
+| `/plan-impl`, `/security`, `/init_overview`, `/update`, `/translate`, `/lessons` | `da` |
 | `/submit` + implementation work | `dev` |
 | `/pass`, `/fail` | `tst` |
 | `/status`, `/list`, `/board`, `/check-deps`, `/plan_summary`, `/overview` | orchestrator (no delegation) |
@@ -64,25 +66,42 @@ The main Claude instance:
 
 The full lifecycle with agent ownership at each gate:
 
+**Auto-pilot flow (recommended):**
 ```
-USER          PO              DA              SM            DEV           TST
- │             │               │               │              │             │
- ├─ /feature ─►│               │               │              │             │
- │             ├─ creates item │               │              │             │
- │             │   [PENDING]   │               │              │             │
- │◄── review ─┤               │               │              │             │
- ├─ /approve ─►│               │               │              │             │
- │             │   [APPROVED]  │               │              │             │
- │             │               ├─ /plan-impl   │              │             │
- │             │               │   [PLANNED]   │              │             │
- │             │               │               ├─ /start ────►│             │
- │             │               │               │   [IN_PROG]  ├─ build      │
- │             │               │               │              ├─ /submit ──►│
- │             │               │               │              │  [REVIEW]   ├─ verify
- │             │               │               │              │     PASS ──►├─ [DONE]
- │             │               │               │◄── /archive ─┴─────────────┘
- │             │               │               │         FAIL ─► [FAILED]
- │             │               │               │                  + new BUG
+USER        PO + DA (inline)   PO           ORCHESTRATOR (/run)
+ │               │               │                │
+ ├─ /feature ───►│               │                │
+ │               ├─ create item  │                │
+ │               ├─ DA enrich ───┤ [PENDING]      │
+ │◄── review ───┤               │                │
+ ├─ /approve ───►│               │                │
+ │               │          [APPROVED]            │
+ ├──────────────────────────── /run ─────────────►│
+ │                                                ├─ SM: start  [IN_PROGRESS]
+ │                                                ├─ DEV: implement + submit  [REVIEW]
+ │                                                ├─ TST: verify
+ │                                                │   PASS → [DONE] → next item
+ │                                                │   FAIL → BUG → fix → retest
+ │                                                │   FAIL×2 → STOP → report to user
+ │◄── results ────────────────────────────────────┤
+ ├─ /archive ────────────────────────────────────►SM
+```
+
+**Manual (step-by-step) flow:**
+```
+USER        PO + DA (inline)   PO           SM          DEV         TST
+ ├─ /feature ───►│               │            │            │           │
+ │               ├─ DA enrich ───┤ [PENDING]  │            │           │
+ ├─ /approve ───►│               │            │            │           │
+ │               │          [APPROVED]        │            │           │
+ │ /plan-impl (optional re-plan) ────────────►│            │           │
+ │                                            ├─ /start ──►│           │
+ │                                            │ [IN_PROG]  ├─ build    │
+ │                                            │            ├─ /submit ►│
+ │                                            │            │ [REVIEW]  ├─ verify
+ │                                            │            │   PASS ───► [DONE]
+ │                                            │            │   FAIL ───► [FAILED] + BUG
+ │                                            │◄─ /archive ────────────┘
 ```
 
 ### Workflow-log protocol
@@ -106,16 +125,14 @@ Every agent adds a `<workflow-log>` entry when it executes a gate transition:
 | Situation | Approach |
 |---|---|
 | `/status`, `/list`, `/board`, `/plan_summary`, `/overview` | Orchestrator handles directly |
-| Creating a simple item with clear scope | Orchestrator handles directly |
+| `/feature`, `/bug`, `/refactor`, `/debt` | Orchestrator handles (Phase 1 + DA enrichment inline) |
+| `/run [IDs]` | Orchestrator handles directly (chains SM/DEV/TST inline) |
 | `/approve`, `/deny` | Delegate to `po` |
-| `/plan-impl` (implementation planning) | Delegate to `da` |
-| `/start` (sprint assignment) | Delegate to `sm` |
-| `/archive` (archival + XML sync) | Delegate to `sm` |
+| `/plan-impl` (re-planning or manual plan) | Delegate to `da` |
+| `/start`, `/archive`, `/sprint`, `/release`, `/blockers` | Delegate to `sm` |
 | `/submit` + full implementation | Delegate to `dev` |
 | `/pass` or `/fail` (verification) | Delegate to `tst` |
-| `/security` (full or focused audit) | Delegate to `da` |
-| `/init_overview` or `/update` | Delegate to `da` |
-| `/release` or `/blockers` | Delegate to `sm` |
+| `/security`, `/init_overview`, `/update`, `/translate`, `/lessons` | Delegate to `da` |
 | Complex backlog grooming or scope negotiation | Delegate to `po` |
 | Release testing | Delegate to `tst` |
 

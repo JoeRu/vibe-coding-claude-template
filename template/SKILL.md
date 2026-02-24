@@ -12,7 +12,7 @@ Skills are implemented as slash command files in `.claude/commands/`. Each skill
 
 ### Item Creation Skills
 
-These skills create new items with `status="PENDING"`. The user must approve before implementation begins. Handled by the orchestrator for simple items; delegate to `po` or `da` for complex capability translation.
+These skills create items with `status="PENDING"` **and immediately enrich them** with a full implementation plan (DA inline enrichment: tasks, technical-parameters, verification, security assessment). The user sees a fully-planned item and only needs `/approve` to proceed — no separate `/plan-impl` step required for standard items.
 
 | Skill | Command file | Agent | Default type | Default priority |
 |---|---|---|---|---|
@@ -40,25 +40,34 @@ These skills create new items with `status="PENDING"`. The user must approve bef
 
 These skills move items through the workflow. Each is owned by a specific agent.
 
+**Normal (auto-pilot) flow:**
 ```
-PENDING ──[/approve]──► APPROVED ──[/plan-impl]──► PLANNED ──[/start]──► IN_PROGRESS
-   │                                                                           │
-[/deny]                                                                   [/submit]
-   │                                                                           │
-DENIED                                                                      REVIEW
-                                                                        ┌──────┴──────┐
-                                                                     [/pass]       [/fail]
-                                                                        │             │
-                                                                       DONE         FAILED
-                                                                                  + new BUG
+/feature (+ inline DA plan)
+        │
+        ▼
+   PENDING ──[/approve]──► APPROVED ──[/run ►──────────────────────────────────────────┐
+      │                                   auto: start → implement → submit → pass/fail  │
+   [/deny]                                         └─[if fail]──► BUG fix cycle ────────┘
+      │                                                                    │
+   DENIED                                                              DONE → /archive
+```
+
+**Manual (step-by-step) flow** (for debugging or fine-grained control):
+```
+APPROVED ──[/plan-impl]──► re-plan ──[/start]──► IN_PROGRESS ──[/submit]──► REVIEW
+                                                                         ┌──────┴──────┐
+                                                                      [/pass]       [/fail]
+                                                                         │             │
+                                                                        DONE         FAILED + BUG
 ```
 
 | Skill | Command file | Agent | Transition | Gate condition |
 |---|---|---|---|---|
 | `/approve <ID...>` | `approve.md` | PO | PENDING → APPROVED | User confirms; branch name generated |
 | `/deny <ID> [reason]` | `deny.md` | PO | PENDING → DENIED | Rejected at gate; archived immediately |
-| `/plan-impl <ID>` | `plan-impl.md` | DA | APPROVED → PLANNED | Implementation plan + security assessment attached |
-| `/start <ID>` | `start.md` | SM | PLANNED → IN_PROGRESS | No active blockers; deps resolved |
+| `/run [IDs]` | `run.md` | Orchestrator | APPROVED → DONE (auto) | Full lifecycle; stops only on escalation |
+| `/plan-impl <ID>` | `plan-impl.md` | DA | PENDING/APPROVED → re-plan | Re-plan or manually plan bare items |
+| `/start <ID>` | `start.md` | SM | APPROVED → IN_PROGRESS | No active blockers; deps resolved |
 | `/submit <ID>` | `submit.md` | DEV | IN_PROGRESS → REVIEW | Unit tests pass; tasks complete |
 | `/pass <ID>` | `pass.md` | TST | REVIEW → DONE | All tests pass; acceptance criteria met |
 | `/fail <ID> [reason]` | `fail.md` | TST | REVIEW → FAILED | Verification failed; BUG item created |
@@ -69,6 +78,8 @@ DENIED                                                                      REVI
 
 | Skill | Command file | Agent | Effect |
 |---|---|---|---|
+| `/run [IDs]` | `run.md` | Orchestrator | Auto-pilot: start → implement → test → fix → done; stops only on escalation |
+| `/implement [IDs]` | `implement.md` | DEV | Manual single-step implementation; no TST cycle |
 | `/archive` | `archive.md` | SM | Move DONE/DENIED items to archive file; extract lessons; rotate changelog; trigger full-test check |
 | `/sprint` | `sprint.md` | SM | Show active sprint status |
 | `/sprint create [ID...]` | `sprint.md` | SM | Group 2–5 APPROVED items into a lightweight SPRINT |
@@ -140,22 +151,22 @@ Agent capabilities are not user-invocable skills — they are the internal compe
 | `enabler-creation` | DA | `/plan-impl`, `/translate` |
 | `architecture-documentation` | DA | `/init_overview`, `/update`, `/archive` |
 | `security-assessment` | DA | `/security`, `/plan-impl`, `/approve` |
-| `implementation-planning` | DA | `/plan-impl` |
-| `technical-guidance` | DA | `/plan-impl`, `/translate` |
+| `implementation-planning` | DA | `/plan-impl`, `/feature`, `/bug`, `/refactor`, `/debt` (inline enrichment) |
+| `technical-guidance` | DA | `/plan-impl`, `/translate`, `/feature`, `/bug`, `/refactor`, `/debt` |
 | `dependency-analysis` | DA | `/plan-impl`, `/update`, `/check-deps` |
 | `knowledge-base-management` | DA | `/archive` (extraction), `/plan-impl` (consultation), `/lessons` (display) |
-| `code-implementation` | DEV | `/submit` (after implementation) |
-| `unit-test-creation` | DEV | `/submit` |
-| `task-execution` | DEV | `/submit` |
-| `self-verification` | DEV | `/submit` |
-| `result-documentation` | DEV | `/submit` |
+| `code-implementation` | DEV | `/submit`, `/run`, `/implement` |
+| `unit-test-creation` | DEV | `/submit`, `/run`, `/implement` |
+| `task-execution` | DEV | `/submit`, `/run`, `/implement` |
+| `self-verification` | DEV | `/submit`, `/run`, `/implement` |
+| `result-documentation` | DEV | `/submit`, `/run`, `/implement` |
 | `branch-management` | DEV | `/approve` (branch generated by PO, used by DEV) |
-| `unit-test-verification` | TST | `/pass`, `/fail` |
-| `integration-testing` | TST | `/pass`, release testing |
+| `unit-test-verification` | TST | `/pass`, `/fail`, `/run` |
+| `integration-testing` | TST | `/pass`, `/run`, release testing |
 | `release-testing` | TST | `/release` gate: full-test-pass |
-| `bug-creation` | TST | `/fail` |
-| `regression-check` | TST | `/pass` |
-| `test-result-documentation` | TST | `/pass`, `/fail` |
+| `bug-creation` | TST | `/fail`, `/run` (auto bug-fix cycle) |
+| `regression-check` | TST | `/pass`, `/run` |
+| `test-result-documentation` | TST | `/pass`, `/fail`, `/run` |
 
 ---
 
@@ -163,15 +174,21 @@ Agent capabilities are not user-invocable skills — they are the internal compe
 
 1. **Query skills** (`/status`, `/list`, `/board`, `/check-deps`, `/plan_summary`, `/overview`) → orchestrator handles directly, no agent needed.
 
-2. **Simple item creation** (clear description, no capability translation needed) → orchestrator handles directly.
+2. **Item creation** (`/feature`, `/bug`, `/refactor`, `/debt`) → orchestrator handles Phase 1 + DA enrichment (Phase 2) inline; delegate to `po` for complex requirement decomposition.
 
-3. **Complex item creation** (requirement decomposition, capability mapping) → delegate to `po` or `da`.
+3. **`/run`** → orchestrator handles directly; it chains DEV + TST logic inline without spawning sub-agents per step.
 
-4. **All lifecycle transition skills** → always delegate to the owning agent (see table above).
+4. **`/approve`, `/deny`** → delegate to `po`.
 
-5. **All analysis and security skills** → always delegate to `da`.
+5. **`/start`, `/archive`, `/sprint`, `/release`, `/blockers`** → delegate to `sm`.
 
-6. **Unknown commands** → list available skills from this registry; do not guess.
+6. **`/plan-impl`, `/security`, `/init_overview`, `/update`, `/translate`, `/lessons`** → delegate to `da`.
+
+7. **`/submit`** → delegate to `dev`.
+
+8. **`/pass`, `/fail`** → delegate to `tst`.
+
+9. **Unknown commands** → list available skills from this registry; do not guess.
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: 'Attach an implementation plan to an APPROVED item (DA role). Transitions to PLANNED.'
+description: 'Attach or refresh an implementation plan (DA role). Use to re-plan or manually enrich a PENDING/APPROVED item.'
 name: 'Plan implementation'
 argument-hint: 'Item ID.'
 agent: 'agent'
@@ -9,14 +9,14 @@ agent: 'agent'
      Metadata: scripts/copilot-headers.json
      Regenerate: python3 scripts/generate-copilot-prompts.py -->
 
-Attach an **implementation plan** to an APPROVED item (DA role). Transitions status to PLANNED.
+Attach or refresh an **implementation plan** (DA role). Use to re-plan an item, manually plan a bare PENDING item, or update an existing plan before implementation starts.
 
 **Arguments:** `$ARGUMENTS` (one item ID)
 
 ## Steps
 
 1. **Read** `ai-docs/overview.xml`, `ai-docs/overview-features-bugs.xml`, and `ai-docs/implementation-plan-template.xml` in parallel.
-2. **Locate the item** by `$ARGUMENTS` ID. Verify `status="APPROVED"`.
+2. **Locate the item** by `$ARGUMENTS` ID. Verify `status="APPROVED"` or `status="PENDING"` (bare items without a plan may also be enriched here).
 3. **Analyze** the item's `<title>`, `<justification>`, and existing `<tasks>` against the codebase. Read source files referenced in or related to the item in parallel — never speculate about code you haven't read.
 4. **Consult** `ai-docs/lessons-learned.md` if it exists. Identify lessons relevant to the item's technology, architecture, or domain; reference applicable L-N IDs in `<technical-parameters>`.
 5. **Populate `<technical-parameters>`**:
@@ -36,7 +36,7 @@ Attach an **implementation plan** to an APPROVED item (DA role). Transitions sta
 
 ## Important
 
-- Only `status="APPROVED"` items can be planned
+- Works on `status="APPROVED"` or `status="PENDING"` items — use for manual planning or re-planning
 - `<task>` entries must be specific and actionable — avoid vague entries like "implement the feature"
 - Security assessment covers every item; record the evaluation even when no categories apply
 - ENABLER items must be APPROVED before this item can start

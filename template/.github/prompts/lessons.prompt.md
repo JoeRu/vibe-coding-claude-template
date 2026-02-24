@@ -1,7 +1,7 @@
 ---
 description: 'Show lessons learned from past implementation items, optionally filtered by category.'
 name: 'Lessons learned'
-argument-hint: '[category: technologie | architektur | sicherheit | testing | prozess]'
+argument-hint: '[category: technology | architecture | security | testing | process]'
 agent: 'agent'
 ---
 <!-- GENERATED FILE — do not edit directly.
@@ -11,7 +11,7 @@ agent: 'agent'
 
 Show lessons learned from past implementation items.
 
-**Arguments:** `$ARGUMENTS` (optional: category filter — `technologie`, `architektur`, `sicherheit`, `testing`, `prozess`)
+**Arguments:** `$ARGUMENTS` (optional: category filter — `technology`, `architecture`, `security`, `testing`, `process`)
 
 ## Steps
 
@@ -28,11 +28,11 @@ Show lessons learned from past implementation items.
 Lessons Learned  [category: {filter or "all"}]
 Last updated: YYYY-MM-DD
 
-## Technologie
+## Technology
   L-1 (2026-02-21, item-42): GitHub gives no email scope by default — request it explicitly.
   L-4 (2026-02-23, item-61): ...
 
-## Architektur
+## Architecture
   L-2 (2026-02-22, item-53): Queue-based processing required for async workloads > 10 pages.
 
 ...

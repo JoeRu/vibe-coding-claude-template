@@ -35,8 +35,8 @@ If `ai-docs/overview-features-bugs-archive.xml` does not exist, create it now:
 
 **b. Lessons extraction** (DA role — for DONE items only):
 - Read the item's `<r><lessons-learned>` content.
-- Skip if empty, "none", or trivially uninformative ("no special insights", "keine besonderen Erkenntnisse", etc.).
-- For non-trivial lessons: determine the category from item type, tags, and title — one of: `Technologie`, `Architektur`, `Sicherheit`, `Testing`, `Prozess`.
+- Skip if empty, "none", or trivially uninformative ("no special insights", "nothing notable", etc.).
+- For non-trivial lessons: determine the category from item type, tags, and title — one of: `Technology`, `Architecture`, `Security`, `Testing`, `Process`.
 - Append to `ai-docs/lessons-learned.md` (create if missing — see format below) with the next sequential L-N ID.
 
 **c. For DONE items:** add a `<completed-features>` entry in `overview.xml`:
@@ -100,15 +100,15 @@ If `ai-docs/lessons-learned.md` does not exist, create it with this skeleton:
 
 > Auto-generated and maintained by the DA agent. Last updated: YYYY-MM-DD.
 
-## Technologie
+## Technology
 
-## Architektur
+## Architecture
 
-## Sicherheit
+## Security
 
 ## Testing
 
-## Prozess
+## Process
 ```
 
 Append each new lesson under the correct category heading:

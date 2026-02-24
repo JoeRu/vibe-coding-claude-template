@@ -52,60 +52,67 @@ This repository uses **role-based sub-agents** that the main Claude instance spa
 
 | Agent | Role | Commands it handles |
 |---|---|---|
-| `po` | Product Owner | `/feature`, `/approve`, `/deny` |
+| `po` | Product Owner | `/approve`, `/deny` (item creation is handled inline by orchestrator) |
 | `sm` | Scrum Master | `/start`, `/archive`, `/release`, `/blockers`, `/sprint` |
-| `da` | DevSecOps Architect | `/plan-impl`, `/security`, `/init_overview`, `/update`, `/translate`, `/lessons` (extraction) |
+| `da` | DevSecOps Architect | `/plan-impl`, `/security`, `/init_overview`, `/update`, `/translate`, `/lessons` |
 | `dev` | Developer | `/submit` + implementation |
 | `tst` | Tester | `/pass`, `/fail` |
 
-Query commands (`/status`, `/list`, `/board`, `/plan_summary`, `/overview`) are handled directly by the orchestrator without delegation.
+`/run` and item creation commands (`/feature`, `/bug`, `/refactor`, `/debt`) are handled inline by the orchestrator.
+Query commands (`/status`, `/list`, `/board`, `/plan_summary`, `/overview`) are also handled directly without delegation.
 
 See `template/AGENT.md` for the full orchestration guide and `template/SKILL.md` for the complete skill-to-agent mapping.
 
 ## Item Lifecycle
 
+**Auto-pilot (normal):**
 ```
-PENDING ──[/approve]──► APPROVED ──[/plan-impl]──► PLANNED ──[/start]──► IN_PROGRESS
-   │                                                                           │
-[/deny]                                                                   [/submit]
-   │                                                                           ▼
-DENIED                                                                      REVIEW
-                                                                        ┌──────┴──────┐
-                                                                     [/pass]       [/fail]
-                                                                        ▼             ▼
-                                                                  DONE → [/archive] FAILED + BUG
-                                                                    ▼
-                                                                ARCHIVED
+/feature → PENDING (+ inline DA plan) ──[/approve]──► APPROVED ──[/run]──► auto: IN_PROGRESS → REVIEW → DONE
+                                           │                                                              │
+                                        [/deny]                                                    [/archive]
+                                           │                                                              │
+                                         DENIED                                                       ARCHIVED
+```
+
+**Manual (step-by-step):**
+```
+PENDING ──[/approve]──► APPROVED ──[/plan-impl]──► re-plan ──[/start]──► IN_PROGRESS ──[/submit]──► REVIEW
+                           │                                                                    ┌──────┴──────┐
+                        [/deny]                                                              [/pass]       [/fail]
+                                                                                                ▼             ▼
+                                                                                          DONE → [/archive] FAILED + BUG
 ```
 
 - IDs are unique integers across all items (never reuse)
 - Branch naming: `{type}/item-{ID}-{slug}` — generated at APPROVED gate by PO
-- XL complexity items must be decomposed into sub-items with `parent="ID"`
-- PLANNED and REVIEW are optional for simple items (S/M complexity)
+- Item creation commands auto-enrich the PENDING item with DA planning inline — no separate `/plan-impl` needed
+- `/plan-impl` is used for re-planning or manually planning bare PENDING items
+- `/run` handles full lifecycle automatically; stops only on escalation (2-fail bug, blocker, PROBLEM)
 - Every lifecycle transition adds a `<workflow-log>` entry with the owning role
 
 ## Slash Commands (Claude Code)
 
-**Item creation** (→ PENDING, delegate to `po` or `da`):
+**Item creation** (→ PENDING with inline DA plan):
 
-| Command | Agent | Purpose |
-|---|---|---|
-| `/feature <desc>` | PO | Create feature item (default priority: MEDIUM) |
-| `/bug <desc>` | PO / TST | Create bug item (default priority: HIGH) |
-| `/refactor <desc>` | DA | Create refactoring item (default priority: MEDIUM) |
-| `/debt <desc>` | DA | Create tech-debt item (default priority: LOW) |
+| Command | Purpose |
+|---|---|
+| `/feature <desc>` | Create feature item; inline DA enrichment (tasks, tech-params, security). Default priority: MEDIUM |
+| `/bug <desc>` | Create bug item; inline DA analysis (root cause, fix tasks, verification). Default priority: HIGH |
+| `/refactor <desc>` | Create refactoring item; inline DA enrichment. Default priority: MEDIUM |
+| `/debt <desc>` | Create tech-debt item; inline DA enrichment. Default priority: LOW |
 
-**Lifecycle transitions** (delegate to owning agent):
+**Lifecycle transitions:**
 
 | Command | Agent | Transition |
 |---|---|---|
 | `/approve <ID...>` | PO | PENDING → APPROVED + branch name |
 | `/deny <ID> [reason]` | PO | PENDING → DENIED + archive |
-| `/plan-impl <ID>` | DA | APPROVED → PLANNED + impl plan |
-| `/start <ID>` | SM | PLANNED → IN_PROGRESS |
-| `/submit <ID>` | DEV | IN_PROGRESS → REVIEW |
-| `/pass <ID>` | TST | REVIEW → DONE |
-| `/fail <ID> [reason]` | TST | REVIEW → FAILED + new BUG |
+| `/run [IDs]` | Orchestrator | APPROVED → DONE (auto-pilot, full cycle) |
+| `/plan-impl <ID>` | DA | Re-plan or manually enrich PENDING/APPROVED item |
+| `/start <ID>` | SM | APPROVED → IN_PROGRESS (manual) |
+| `/submit <ID>` | DEV | IN_PROGRESS → REVIEW (manual) |
+| `/pass <ID>` | TST | REVIEW → DONE (manual) |
+| `/fail <ID> [reason]` | TST | REVIEW → FAILED + new BUG (manual) |
 
 **Management** (delegate to agent):
 

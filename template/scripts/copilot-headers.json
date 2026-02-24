@@ -64,7 +64,7 @@
   "lessons": {
     "name": "Lessons learned",
     "description": "Show lessons learned from past implementation items, optionally filtered by category.",
-    "argument-hint": "[category: technologie | architektur | sicherheit | testing | prozess]"
+    "argument-hint": "[category: technology | architecture | security | testing | process]"
   },
   "list": {
     "name": "List items",
@@ -83,8 +83,13 @@
   },
   "plan-impl": {
     "name": "Plan implementation",
-    "description": "Attach an implementation plan to an APPROVED item (DA role). Transitions to PLANNED.",
+    "description": "Attach or refresh an implementation plan (DA role). Use to re-plan or manually enrich a PENDING/APPROVED item.",
     "argument-hint": "Item ID."
+  },
+  "run": {
+    "name": "Run auto-pilot",
+    "description": "Auto-pilot: executes APPROVED items end-to-end (start → implement → test → fix → done). Stops only on escalation.",
+    "argument-hint": "Optional item IDs. Leave empty for all APPROVED items."
   },
   "plan_summary": {
     "name": "Plan summary",

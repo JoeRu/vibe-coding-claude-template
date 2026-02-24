@@ -424,7 +424,7 @@ Completed and denied items are moved **out of** `overview-features-bugs.xml` and
    </archive>
    ```
 
-3. **Lessons extraction**: for DONE items with non-trivial `<r><lessons-learned>` content, extract and append to `ai-docs/lessons-learned.md` under the appropriate category (Technologie, Architektur, Sicherheit, Testing, Prozess) with a sequential L-N ID. Skip trivially empty lessons.
+3. **Lessons extraction**: for DONE items with non-trivial `<r><lessons-learned>` content, extract and append to `ai-docs/lessons-learned.md` under the appropriate category (Technology, Architecture, Security, Testing, Process) with a sequential L-N ID. Skip trivially empty lessons.
 
 4. **Add** a `<completed-features>` entry in `overview.xml` (for DONE items only):
    ```xml
@@ -848,7 +848,7 @@ The user can use slash commands as shortcuts. When a message starts with a slash
 
 Lessons learned are accumulated in `ai-docs/lessons-learned.md` during every `/archive` run.
 
-**Format:** Markdown, organized by category: `Technologie`, `Architektur`, `Sicherheit`, `Testing`, `Prozess`.
+**Format:** Markdown, organized by category: `Technology`, `Architecture`, `Security`, `Testing`, `Process`.
 
 **Lesson entry:** `- **L-N** (YYYY-MM-DD, item-ID): Lesson text.`
 
