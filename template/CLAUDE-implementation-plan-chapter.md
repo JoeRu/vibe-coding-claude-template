@@ -11,16 +11,19 @@ A separate `overview.xml` captures the project's architectural baseline – stru
 | File | Purpose | When updated |
 |---|---|---|
 | `ai-docs/overview.xml` | Project architecture, dependencies, environments, security, completed features | Initial analysis + every archival |
-| `ai-docs/overview-features-bugs.xml` | Active items (features, bugs, refactoring, tech-debt) — max 30 changelog entries | Every interaction that changes scope or code |
-| `ai-docs/overview-features-bugs-archive.xml` | Fully archived items + full changelog history | Created on first `/archive`; updated on each archival |
+| `ai-docs/overview-features-bugs.xml` | **Index**: `<item-ref>` per active item (id, status, title, branch, depends-on, `planned-files`) + sprints/releases/blockers + last 30 changelog entries | Every interaction that changes scope or code |
+| `ai-docs/items/{NNNN}.xml` | Full item content (tasks, verification, `<affected-files>`, workflow-log, `<r>`) — one file per active item | Created on item creation; updated on each lifecycle transition |
+| `ai-docs/items/archive/{NNNN}.xml` | Archived items (moved here by `/archive`) | On each archival |
 | `ai-docs/lessons-learned.md` | Aggregated lessons extracted from DONE items | Created on first `/archive` with non-trivial lessons |
-| `ai-docs/implementation-plan-template-v3.1.xml` | Schema reference (do not edit) | Never |
+| `ai-docs/implementation-plan-template.xml` | Schema reference (do not edit) | Never |
 | `ai-docs/` | All other markdown and planning documents | As needed |
 
-**Session Start:** Load only `overview.xml` and `overview-features-bugs.xml` (active items). Load `overview-features-bugs-archive.xml` only when:
-- `/status <ID>` is called for an ID not found in the active file
-- `/lessons` searches for historical lessons
-- `/update` checks drift against archived features
+**Legacy format:** If `ai-docs/items/` does not exist, items are stored inline in `overview-features-bugs.xml` (flat format — still supported). Run `/update` to migrate.
+
+**Session Start:** Load `overview.xml` and `overview-features-bugs.xml` (index only — fast). Load individual `ai-docs/items/{NNNN}.xml` files **on demand**:
+- `/status N` or `/run N` → load `items/NNNN.xml`
+- `/archive` → load all `items/` files with DONE or DENIED status
+- Archive lookup: load `items/archive/NNNN.xml` when an ID is not found in the active index
 
 **Also read:** `CLAUDE-roles-chapter.md` for role definitions, capability tables, and the end-to-end workflow swimlane.
 
@@ -521,12 +524,22 @@ The `<security>` section in `overview.xml` must always reflect the **current** s
 ## XML Structure Quick Reference
 
 ```xml
-<!-- Simple feature or bug -->
+<!-- Simple feature or bug (item-per-file: lives in ai-docs/items/NNNN.xml) -->
 <item id="N" type="feature|bug|refactoring|tech-debt" status="PENDING" priority="CRITICAL|HIGH|MEDIUM|LOW" complexity="S|M|L|XL">
   <title>Short descriptive title</title>
   <branch>type/item-N-slug</branch>
   <justification>Why this is needed</justification>
   <depends-on>comma-separated item IDs or empty</depends-on>
+
+  <!-- DA fills during enrichment — drives /run conflict-graph and TST regression scope -->
+  <affected-files planned="true">
+    <file role="modify">src/path/to/existing/file.py</file>   <!-- HARD conflict signal -->
+    <file role="create">src/path/to/new/file.py</file>        <!-- no conflict possible -->
+    <file role="delete">src/path/to/removed/file.py</file>    <!-- HARD conflict signal -->
+    <file role="read">src/path/to/dependency.py</file>        <!-- no conflict -->
+    <file role="create" test="true">tests/test_feature.py</file> <!-- soft conflict only -->
+  </affected-files>
+
   <tasks>
     <task id="N.1">Task description</task>
   </tasks>
@@ -546,6 +559,13 @@ The `<security>` section in `overview.xml` must always reflect the **current** s
     <files><file>path/to/file</file></files>
   </r>
 </item>
+
+<!-- Index entry for the item above (lives in overview-features-bugs.xml) -->
+<!-- planned-files = space-separated non-test modify/delete files from <affected-files> above -->
+<item-ref id="N" type="feature" status="PENDING" priority="MEDIUM" complexity="M"
+          title="Short descriptive title" branch="feature/item-N-slug"
+          depends-on="" parent="" security=""
+          planned-files="src/path/to/existing/file.py src/path/to/removed/file.py" />
 
 <!-- Epic (XL) with acceptance criteria -->
 <item id="N" type="feature" status="PENDING" priority="HIGH" complexity="XL">
@@ -899,6 +919,33 @@ When triggered, `/archive` outputs: *"N items archived since last full test (las
 
 After a successful full-test run, reset the counter to 0 and update `last-fulltest-date`.
 
+### 13. Resource Conflict Detection
+
+To enable safe parallel execution, DA must identify which project source files each item will modify and flag conflicts with other active items.
+
+**During every item enrichment** (creation commands and `/plan-impl`):
+
+1. List all project source files the item will **modify** or **delete**.
+2. Write `<affected-files planned="true">` in the item file, tagging each with `role` and `test="true"` for test files.
+3. Cross-reference `planned-files` of all `APPROVED`/`IN_PROGRESS` items in the index.
+4. For each **hard conflict** (same non-test source file):
+   - Auto-set `depends-on={ID}` (lower ID runs first, unless priority warrants override).
+   - Report: `"⚠ Resource conflict with item {ID}: {file}. depends-on set."`
+5. For **test-file overlap**: warn only (soft — additive changes are usually merge-safe).
+6. Write space-separated non-test modify/delete paths as `planned-files="{...}"` in the `<item-ref>` index entry.
+
+**Dependency types:**
+
+| Type | Cause | Enforced via |
+|---|---|---|
+| Logical | B needs A's output (e.g. A creates schema B reads) | `depends-on` — set by user or DA |
+| Resource | A and B modify the same source file | `depends-on` — set automatically by DA |
+| Soft | Same module/directory, no direct file overlap | Warning only — no `depends-on` |
+
+**`/run` uses `planned-files` to build execution batches** — items without shared files run in parallel; items with overlapping `planned-files` (or explicit `depends-on`) are sequenced into separate batches.
+
+---
+
 ## Important Reminders
 
 - **Never implement without checking both XML files first**
@@ -908,8 +955,9 @@ After a successful full-test run, reset the counter to 0 and update `last-fullte
 - **Always create `[REF]` items** for incomplete features that are at risk from active work
 - **Always assess security impact** – every item gets a security check during risk evaluation
 - **Always tag security items** – `security="true"` + `[SECURITY]` title prefix + `<security-impact>` block
+- **Always populate `<affected-files>` during enrichment** – enables parallel execution and prevents silent overwrites
 - **Always update `<r>` after implementation** – outcomes and lessons-learned are mandatory
-- **Always archive to both files** – overview.xml stays in sync including security posture
+- **Always archive to the correct location** – DONE items move to `ai-docs/items/archive/`; add to `completed-features` in `overview.xml`
 - **Keep the XML valid** – malformed XML breaks the workflow
 - **Respect the 5-item limit** – ask before processing more
 - **Update changelog once per interaction** – grouped, not per item

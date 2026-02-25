@@ -14,14 +14,21 @@ Attach or refresh an **implementation plan** (DA role). Use to re-plan an item, 
    - `<pattern>` — recommended implementation approach; cite relevant L-N lessons here
 6. **Create or refine `<tasks>`** — concrete, ordered `<task>` entries; each completable by one developer in ≤ 1 day.
 7. **Run security assessment** — evaluate all 7 categories: AUTH, INPUT, DATA, NETWORK, CRYPTO, ACCESS, DISCLOSURE. If any apply: set `security="true"` and populate `<security-impact>`. Note the evaluation outcome even when no concerns apply.
-8. **Create ENABLER items** if technical prerequisites are missing; add their IDs to `<depends-on>`.
-9. **Add optional context blocks** if not already present:
-   - `<capabilities>` — capabilities this item delivers
-   - `<acceptance-criteria>` — derive from `<justification>` if missing
-10. **Set** `status="PLANNED"`.
-11. **Add `<workflow-log>` entry**: `role="DA" action="planned" from-status="APPROVED" to-status="PLANNED"`.
-12. **Update `<changelog>`** in `overview-features-bugs.xml`.
-13. **Confirm** to user: item ID, `<title>`, status PLANNED, `<tasks>` list, any new ENABLER IDs.
+8. **Collision analysis** — populate `<affected-files>` and enforce resource sequencing:
+   a. List every project source file this item will **modify** or **delete** (not read-only, not new files).
+   b. Write or refresh `<affected-files planned="true">` in the item XML with `role="modify|create|delete|read"` and `test="true"` for test files.
+   c. Read `overview-features-bugs.xml`; collect `planned-files` of all `<item-ref>` entries with `status="APPROVED"` or `status="IN_PROGRESS"` (excluding this item itself).
+   d. For each source file with `role="modify"` or `role="delete"`: check for overlap.
+   e. **Hard conflict**: auto-set `depends-on={ID}` and report; **test-file overlap**: warn only.
+   f. Write space-separated non-test `modify`/`delete` paths as `planned-files="{...}"` in this item's `<item-ref>` in the index.
+9. **Create ENABLER items** if technical prerequisites are missing; add their IDs to `<depends-on>`.
+10. **Add optional context blocks** if not already present:
+    - `<capabilities>` — capabilities this item delivers
+    - `<acceptance-criteria>` — derive from `<justification>` if missing
+11. **Set** `status="PLANNED"`.
+12. **Add `<workflow-log>` entry**: `role="DA" action="planned" from-status="APPROVED" to-status="PLANNED"`.
+13. **Update `<changelog>`** in `overview-features-bugs.xml`.
+14. **Confirm** to user: item ID, `<title>`, status PLANNED, `<tasks>` list, any new ENABLER IDs, any resource conflicts found.
 
 ## Important
 

@@ -35,6 +35,17 @@ Skip this phase for `--epic` (XL items must be decomposed first via `/translate`
     - Note the evaluation outcome even when no categories apply
 12. **Impact check**: identify existing features potentially affected. Warn if any have `completeness != FULL` or `test-coverage == NONE`.
 13. **If ENABLER items are needed** (technical prerequisites missing): note them for the user; create them only if clearly required.
+14. **Collision analysis** — populate `<affected-files>` and enforce resource sequencing:
+    a. List every project source file this item will **modify** or **delete** (exclude files it only reads or creates new).
+    b. Write `<affected-files planned="true">` in the item XML, tagging each file with `role="modify|create|delete|read"` and `test="true"` for test files.
+    c. Read `overview-features-bugs.xml`; collect `planned-files` of all `<item-ref>` entries with `status="APPROVED"` or `status="IN_PROGRESS"`.
+    d. For each source file with `role="modify"` or `role="delete"`: check for overlap with those `planned-files`.
+    e. **Hard conflict** (same source file, non-test):
+       - Other item `IN_PROGRESS` → auto-set `depends-on={ID}` on this item; report: `"⚠ Resource conflict with item {ID} (IN_PROGRESS): {file}. depends-on set automatically."`
+       - Other item `APPROVED` → set `depends-on={ID}` (lower-ID runs first unless priority warrants override); report conflict and reason.
+    f. **Test-file overlap** → warn only: `"ℹ Same test file as item {ID}: {file}. Parallel execution possible but check for function-name collisions."`
+    g. **Same-directory overlap** (different files, same module path) → soft warn only.
+    h. Write space-separated non-test `modify`/`delete` file paths as `planned-files="{...}"` in the `<item-ref>` in the index.
 
 ## Phase 3 – Auto-run (only when `!run` modifier is present)
 

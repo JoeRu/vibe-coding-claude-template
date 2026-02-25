@@ -25,6 +25,17 @@ Create a **refactoring item** in the implementation plan. Includes inline techni
 11. **Populate `<verification>`** — `<tests>` proving behavior is unchanged after refactoring; regression tests are especially important here.
 12. **Security assessment** — refactoring can introduce regressions in security controls; evaluate all 7 categories.
 13. **Impact check**: identify features that share the affected files; warn if `completeness != FULL` or `test-coverage == NONE`.
+14. **Collision analysis** — populate `<affected-files>` and enforce resource sequencing:
+    a. List every project source file this item will **modify** or **delete** (refactoring typically touches many files — list them all).
+    b. Write `<affected-files planned="true">` in the item XML, tagging each file with `role="modify|create|delete|read"` and `test="true"` for test files.
+    c. Read `overview-features-bugs.xml`; collect `planned-files` of all `<item-ref>` entries with `status="APPROVED"` or `status="IN_PROGRESS"`.
+    d. For each source file with `role="modify"` or `role="delete"`: check for overlap with those `planned-files`.
+    e. **Hard conflict** (same source file, non-test):
+       - Other item `IN_PROGRESS` → auto-set `depends-on={ID}`; report: `"⚠ Resource conflict with item {ID} (IN_PROGRESS): {file}. depends-on set automatically."`
+       - Other item `APPROVED` → set `depends-on={ID}` (lower-ID first); report conflict and reason.
+    f. **Test-file overlap** → warn only.
+    g. **Note:** refactoring items tend to have high collision rates — be thorough in step (a) to avoid undetected conflicts.
+    h. Write space-separated non-test `modify`/`delete` file paths as `planned-files="{...}"` in the `<item-ref>` in the index.
 
 ## Phase 3 – Auto-run (only when `!run` modifier is present)
 

@@ -32,14 +32,18 @@
   - problem      = systemic/environmental issue (not a code defect)
   - sprint       = lightweight grouping of 2-5 items (no PO gates); one active at a time
 
-  File split:
-  - overview-features-bugs.xml       = active items + last 30 changelog entries
-  - overview-features-bugs-archive.xml = archived items + full changelog history
-  Archive file root element: <plan-archive>
-    <metadata><created/><updated/><source/></metadata>
-    <archive><!-- archived <item> elements --></archive>
-    <changelog-history><!-- <entry> elements older than 30 most recent --></changelog-history>
-  </plan-archive>
+  File layout (item-per-file format):
+  - overview-features-bugs.xml       = slim INDEX: <item-ref> per item + sprints/releases/blockers + changelog (last 30 entries)
+  - ai-docs/items/{NNNN}.xml         = full item content (one file per active item, zero-padded 4-digit ID e.g. 0014.xml)
+  - ai-docs/items/archive/{NNNN}.xml = archived items (moved here by /archive)
+
+  Index <item-ref> attributes (all items summarised in the index):
+    id, type, status, priority, title, branch, depends-on, parent, security, complexity
+    planned-files = space-separated project source file paths this item will MODIFY or DELETE
+                    (DA fills this during enrichment; /run reads it to build the conflict graph)
+
+  Legacy inline format (overview-features-bugs.xml with inline <item> elements) is still supported.
+  Run /update to migrate to item-per-file (backs up existing file first).
 
   Status lifecycle (full):
   PENDING ──→ APPROVED ──→ PLANNED ──→ IN_PROGRESS ──→ REVIEW ──→ DONE ──→ ARCHIVED
@@ -160,6 +164,15 @@
       <capabilities>         — list of capabilities this item delivers
       <technical-parameters> — constraints, NFRs, implementation patterns (DA-authored)
       <workflow-log>         — auto-populated lifecycle audit trail
+
+    <affected-files planned="true"> — DA fills during enrichment BEFORE implementation:
+      <file role="modify|create|delete|read" test="true|false">path</file>
+      role:  modify = existing file changed (HARD conflict signal)
+             create = new file (no conflict possible)
+             delete = file removed (HARD conflict signal)
+             read   = read-only dependency (no conflict)
+      test:  true = test file (soft conflict — additive changes, usually safe to parallel)
+      This block drives: (1) planned-files in <item-ref> for conflict-graph, (2) TST regression scope.
 
     Rules for XL items (epics):
       - MUST be decomposed into sub-items with parent="ID"
@@ -352,6 +365,13 @@
     <branch>feature/healthcheck</branch>
     <justification>Required for Kubernetes liveness probe</justification>
     <depends-on></depends-on>
+
+    <!-- affected-files: DA fills during enrichment; drives conflict-graph in /run -->
+    <affected-files planned="true">
+      <file role="modify">src/app.py</file>
+      <file role="create">src/health.py</file>
+      <file role="create" test="true">tests/test_health.py</file>
+    </affected-files>
 
     <tasks>
       <task id="30.1">Create GET /health endpoint returning 200 + DB connectivity status</task>
@@ -554,6 +574,42 @@
     <resolved-date></resolved-date>
     <resolution></resolution>
   </blocker>
+
+  <!-- ================================================================== -->
+  <!-- EXAMPLE: INDEX FORMAT (overview-features-bugs.xml in item-per-file mode) -->
+  <!-- In item-per-file mode the main XML is a slim index; full item content  -->
+  <!-- lives in ai-docs/items/{NNNN}.xml. The index uses <item-ref> elements. -->
+  <!-- ================================================================== -->
+  <!--
+  <plan>
+    <metadata>
+      <title>Project Title</title>
+      <version>1.0</version>
+      <updated>2026-02-25</updated>
+      <next-id>31</next-id>
+      <done-since-last-fulltest>2</done-since-last-fulltest>
+      <last-fulltest-date>2026-02-10</last-fulltest-date>
+    </metadata>
+
+    <items>
+      <item-ref id="30" type="feature"  status="APPROVED"    priority="MEDIUM"
+                title="Add health check endpoint"  branch="feature/item-30-health-check"
+                depends-on=""  parent=""  complexity="S"
+                planned-files="src/app.py" />
+
+      <item-ref id="31" type="bug"      status="IN_PROGRESS" priority="HIGH"
+                title="Login fails with SSO + 2FA"  branch="bug/item-31-sso-login"
+                depends-on="30"  parent=""  complexity="S"
+                planned-files="src/auth/sso.py src/auth/mfa.py" />
+    </items>
+
+    <sprints /><releases /><blockers />
+
+    <changelog>
+      <entry date="2026-02-25">Item 30 APPROVED. Item 31 created PENDING → APPROVED.</entry>
+    </changelog>
+  </plan>
+  -->
 
   <!-- ================================================================== -->
   <!-- CHANGELOG – track plan evolution                                    -->

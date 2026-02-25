@@ -12,7 +12,7 @@ After `/run` completes, run `/archive` to extract lessons and rotate the changel
 
 ## Phase 1 — Prepare
 
-1. **Read** both XML files in parallel.
+1. **Read** both XML files in parallel. Load the individual item files (`ai-docs/items/{NNNN}.xml`) for all collected items.
 2. **Collect items to run**:
    - If IDs provided: verify each exists with `status="APPROVED"`. Warn and skip any that are not.
    - If no IDs: collect all items with `status="APPROVED"`.
@@ -21,13 +21,58 @@ After `/run` completes, run `/archive` to extract lessons and rotate the changel
 4. **Sprint grouping**: if ≥ 2 items and no active SPRINT exists:
    - Create `<sprint id="SPR-N" status="ACTIVE" type="SPRINT" started="{today}">` with all items in `<scope>`.
    - Announce: "Sprint SPR-N created for N items."
-5. **Announce** the run: list item IDs and `<title>` values, then proceed.
+5. **Build conflict graph and execution batches** (see Phase 1a below).
+6. **Announce** the run: list item IDs and `<title>` values with their batch assignment, then proceed.
 
 ---
 
-## Phase 2 — Execute Each Item
+## Phase 1a — Conflict Graph and Batch Planning
 
-For each item in order:
+Before executing, determine which items can safely run in parallel and which must be sequenced.
+
+**Step A — Collect planned-files for all items in this run:**
+- Read `planned-files` attribute from each item's `<item-ref>` in the index.
+- If an item has no `planned-files` (e.g. newly approved without DA enrichment): treat as unknown — place it in its own batch to be safe. Recommend running `/plan-impl {ID}` to populate.
+
+**Step B — Build a resource-conflict set:**
+- For each pair of items in this run, check if their `planned-files` sets overlap.
+- Overlap = at least one shared non-test source file.
+- Also apply existing `depends-on` constraints (logical + resource dependencies already set by DA).
+
+**Step C — Topological sort into batches:**
+```
+A batch contains items that:
+  (a) have no unresolved depends-on pointing to items not yet DONE, AND
+  (b) share no planned-files with any other item in the same batch.
+
+Build batches greedily:
+  1. Batch 1: all items with no depends-on and no mutual file conflicts.
+  2. Batch 2: items whose depends-on items are all in Batch 1, and no mutual file conflicts within Batch 2.
+  3. Continue until all items are assigned.
+```
+
+**Step D — Report the plan to the user before executing:**
+```
+Batch 1 (parallel): items 14, 17  — no shared files, no dependencies
+Batch 2 (parallel): items 15, 16  — both depend on item 14; no shared files between 15 and 16
+```
+If any item was placed alone due to unknown planned-files, note it and suggest `/plan-impl`.
+
+---
+
+---
+
+## Phase 2 — Execute Batches
+
+Execute one batch at a time. Within a batch, all items run **in parallel** (no shared files, no unresolved dependencies). Between batches, wait for all items in the current batch to complete before starting the next.
+
+**For each batch:**
+- Launch one sub-agent per item using `run_in_background=true`.
+- Each sub-agent receives its item's full context: item file path, `<tasks>`, `<technical-parameters>`, `<verification>`, `<security-impact>` (if applicable).
+- Wait for all sub-agents in the batch to return before proceeding to Phase 2e/2f/2g for each result.
+- The orchestrator collects all results, applies status transitions to the index, and writes one changelog entry per batch.
+
+**For each item in the batch** (steps 2a–2g apply to each item independently):
 
 ### 2a. Start (SM role)
 - Check `<depends-on>` — if any referenced IDs are not DONE: skip item with warning.
@@ -145,6 +190,8 @@ After all items in the batch are DONE:
 | Item reaches PROBLEM outcome | Report the issue; stop |
 | Security finding requiring design change | Report; stop (design must be updated first via `/plan-impl`) |
 | ENABLER dependency missing | Report missing prerequisite; stop |
+| **Undetected resource conflict at runtime** | DEV modified a file not in `planned-files` that another parallel item also modified → stop both items, report: "Undetected file conflict: {file} modified by items {A} and {B}. Run `/plan-impl {A} {B}` to refresh `affected-files`, then retry." |
+| **Item has no `planned-files`** | Placed alone in its batch (safe). Recommend `/plan-impl {ID}` after run. |
 
 ---
 

@@ -27,6 +27,16 @@ Create a **bug or problem item** in the implementation plan. Includes inline roo
 9. **Populate `<verification>`** — `<tests>` that confirm the bug is fixed and no regressions are introduced.
 10. **Security assessment** — if `!security` or any AUTH/INPUT/DATA/NETWORK/CRYPTO/ACCESS/DISCLOSURE category applies: populate `<security-impact>`.
 11. **Impact check**: identify which existing features could be affected; warn if any have `completeness != FULL` or `test-coverage == NONE`.
+12. **Collision analysis** — populate `<affected-files>` and enforce resource sequencing:
+    a. List every project source file this item will **modify** or **delete** (exclude files it only reads or creates new).
+    b. Write `<affected-files planned="true">` in the item XML, tagging each file with `role="modify|create|delete|read"` and `test="true"` for test files.
+    c. Read `overview-features-bugs.xml`; collect `planned-files` of all `<item-ref>` entries with `status="APPROVED"` or `status="IN_PROGRESS"`.
+    d. For each source file with `role="modify"` or `role="delete"`: check for overlap with those `planned-files`.
+    e. **Hard conflict** (same source file, non-test):
+       - Other item `IN_PROGRESS` → auto-set `depends-on={ID}`; report: `"⚠ Resource conflict with item {ID} (IN_PROGRESS): {file}. depends-on set automatically."`
+       - Other item `APPROVED` → set `depends-on={ID}` (lower-ID first); report conflict and reason.
+    f. **Test-file overlap** → warn only.
+    g. Write space-separated non-test `modify`/`delete` file paths as `planned-files="{...}"` in the `<item-ref>` in the index.
 
 ## Phase 3 – Auto-run (only when `!run` modifier is present)
 

@@ -155,6 +155,7 @@ Agent capabilities are not user-invocable skills — they are the internal compe
 | `implementation-planning` | DA | `/plan-impl`, `/feature`, `/bug`, `/refactor`, `/debt` (inline enrichment) |
 | `technical-guidance` | DA | `/plan-impl`, `/translate`, `/feature`, `/bug`, `/refactor`, `/debt` |
 | `dependency-analysis` | DA | `/plan-impl`, `/update`, `/check-deps` |
+| `resource-conflict-detection` | DA | `/feature`, `/bug`, `/refactor`, `/debt`, `/plan-impl` — populates `<affected-files planned="true">` and `planned-files` in the index; auto-sets `depends-on` on hard file conflicts; enables `/run` batch parallelism |
 | `knowledge-base-management` | DA | `/archive` (extraction), `/plan-impl` (consultation), `/lessons` (display) |
 | `code-implementation` | DEV | `/submit`, `/run`, `/implement` |
 | `unit-test-creation` | DEV | `/submit`, `/run`, `/implement` |
