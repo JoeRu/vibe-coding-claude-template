@@ -32,6 +32,8 @@ The script is idempotent — re-running is safe. Existing files are backed up to
 
 After installation, open your project in Claude Code and run `/init_overview`.
 
+See the **[Usage Guide](usage-guide.md)** for step-by-step walkthroughs, examples for new and existing projects, and a full modifier reference.
+
 ---
 
 ## End-User Documentation

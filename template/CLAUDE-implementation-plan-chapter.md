@@ -307,6 +307,8 @@ Every interaction that involves code changes, bug reports, or feature discussion
 
 All new items are created with `status="PENDING"`. The user must explicitly approve before implementation begins. Never skip to `APPROVED` or `IN_PROGRESS` without user confirmation.
 
+**Exception – `!run` short-path:** When a creation command is invoked with the `!run` modifier (`/feature … !run`, `/bug … !run`, `/refactor … !run`, `/debt … !run`), the command invocation itself is the user's approval. After DA enrichment completes, auto-set `status="APPROVED"` and immediately execute the full `/run` lifecycle. Blocked on XL items and PROBLEM items.
+
 Status lifecycle:
 ```
 PENDING ──→ APPROVED ──→ PLANNED ──→ IN_PROGRESS ──→ REVIEW ──→ DONE ──→ ARCHIVED
@@ -684,6 +686,7 @@ The user can use slash commands as shortcuts. When a message starts with a slash
 | `!security` | Mark as security-relevant | `/bug XSS in comments !security` |
 | `@<ID>` | Set `depends-on` | `/feature Token refresh @11` |
 | `^<ID>` | Set `parent` (sub-item of epic) | `/feature OAuth callback ^10` |
+| `!run` | Short-path: auto-approve after enrichment and execute immediately; invoking the command with `!run` IS the approval | `/feature Add dark mode !run` |
 
 **Examples:**
 ```

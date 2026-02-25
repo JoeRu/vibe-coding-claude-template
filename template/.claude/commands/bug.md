@@ -11,6 +11,7 @@ Create a **bug or problem item** in the implementation plan. Includes inline roo
    - `@<ID>` → set `depends-on`
    - `^<ID>` → set `parent` (sub-item of epic)
    - `--problem` → create as `type="problem"` (systemic/environmental issue, not a code defect)
+   - `!run` → short-path: auto-approve after enrichment and execute immediately (see Phase 3)
 3. **Search** existing items for duplicates. If found: inform user, update if needed; stop.
 4. **Create the skeleton item**: `status="PENDING"`, `priority="HIGH"` (default), next sequential ID, estimated complexity.
    - For bugs: add `<steps-to-reproduce>`, `<expected-result>`, `<analysis>` with initial hypothesis from description
@@ -27,13 +28,31 @@ Create a **bug or problem item** in the implementation plan. Includes inline roo
 10. **Security assessment** — if `!security` or any AUTH/INPUT/DATA/NETWORK/CRYPTO/ACCESS/DISCLOSURE category applies: populate `<security-impact>`.
 11. **Impact check**: identify which existing features could be affected; warn if any have `completeness != FULL` or `test-coverage == NONE`.
 
+## Phase 3 – Auto-run (only when `!run` modifier is present)
+
+Skip this phase when `!run` is not set — the item stays `status="PENDING"` and waits for `/approve`.
+
+After Phase 2 completes:
+
+12. **Guard**: if `--problem` modifier is also set, abort Phase 3 — PROBLEM items require human review before action. Warn: `"!run is not allowed on PROBLEM items — review required."`. Keep `status="PENDING"`.
+13. **Guard**: if complexity is `XL`, abort Phase 3 — set `status="PENDING"` and warn: `"!run is not allowed on XL items."`.
+14. **Auto-approve**: set `status="APPROVED"`. The `!run` modifier IS the user's explicit approval.
+    - Generate branch name per the branch naming convention and set `<branch>`.
+    - Add `<workflow-log>` entry: `role="PO" action="auto-approved" from-status="PENDING" to-status="APPROVED" note="!run short-path"`.
+    - Update `<changelog>`.
+15. **Announce**: `"Item N auto-approved via !run — executing..."`.
+16. **Execute**: run the full `/run` logic for this item (Phases 2 and 3 of `run.md`).
+
 ## Output
 
-Display the enriched bug item for user review. The item stays `status="PENDING"` — run `/approve <ID>` to proceed.
+**Without `!run`:** Display the enriched bug item for user review. The item stays `status="PENDING"` — run `/approve <ID>` to proceed.
+
+**With `!run`:** Display enrichment summary, then proceed directly to execution output.
 
 ## Important
 
-- Items stay PENDING until the user runs `/approve`
+- Items stay PENDING until the user runs `/approve` **unless `!run` is set** — `!run` is the user's in-command approval
+- `!run` is blocked on PROBLEM items and XL complexity items
 - PROBLEM items are for systemic issues (environment, process, architecture) — not code defects; skip Phase 2 for PROBLEM items
 - Always search for duplicates first
 - Keep XML valid at all times

@@ -33,6 +33,7 @@ These skills create items with `status="PENDING"` **and immediately enrich them*
 | `--epic` | Create as EPIC type (XL, requires decomposition) |
 | `--enabler` | Create as ENABLER type |
 | `--problem` | Create as PROBLEM type |
+| `!run` | **Short-path**: auto-approve after DA enrichment and execute immediately; the command invocation IS the approval. Blocked on XL and PROBLEM items. |
 
 ---
 
