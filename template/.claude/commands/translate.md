@@ -2,6 +2,12 @@
 
 **Arguments:** `$ARGUMENTS` (one REQUIREMENT item ID)
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py translate --requirement-id <ID>` to create EPIC/FEATURE entries from REQUIREMENT.
+- Optional: `--features <N>` to control generated feature count.
+- Use global `--json` for generated ID lists.
+
 ## Steps
 
 1. **Read** `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml`.

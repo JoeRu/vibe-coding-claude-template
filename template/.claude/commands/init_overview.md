@@ -1,5 +1,11 @@
 Run the **initial code analysis** as described in `CLAUDE-implementation-plan-chapter.md`.
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py init-overview` to initialize missing lifecycle XML files.
+- This is conservative: existing files are left untouched.
+- Use global `--json` for created-file reporting.
+
 ## Steps
 
 1. If `ai-docs/overview.xml` or `ai-docs/overview-features-bugs.xml` already exist, **back them up** as `.bak` files before overwriting.

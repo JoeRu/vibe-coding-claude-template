@@ -2,6 +2,12 @@ Run a **security audit** of the codebase.
 
 **Arguments:** `$ARGUMENTS` (optional: specific area like "auth", "api", or "status")
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py security-update --title ... --description ... --mitigation ...`.
+- This updates `overview.xml` security concerns and adds a grouped plan changelog entry.
+- Use global `--json` for structured audit integration.
+
 ## Modes
 
 ### `/security` (no arguments) – Full audit

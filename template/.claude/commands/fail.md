@@ -2,6 +2,12 @@
 
 **Arguments:** `$ARGUMENTS` (one item ID, reason for failure)
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py transition` for status changes and workflow-log updates.
+- Required flags: `--item-id`, `--to-status`, `--role`; optional: `--action`, `--outcome`, `--observations`, `--lessons-text`, `--files`.
+- For `/fail`, use optional `--create-followup-bug-title` to auto-create linked bug items.
+
 ## Steps
 
 1. **Read** `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml`.

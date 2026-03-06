@@ -2,6 +2,12 @@ Create a **bug or problem item** in the implementation plan. Includes inline roo
 
 **Arguments:** `$ARGUMENTS` (description with optional modifiers)
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py create-item` for all item insertions into `ai-docs/overview-features-bugs.xml`.
+- Recommended flags: `--kind`, `--title`, `--justification`, `--priority`, `--complexity`, optional `--security`, `--depends-on`, `--task`, `--test-file`, `--file`.
+- For machine-readable orchestration output, add global `--json`.
+
 ## Phase 1 – Item Creation
 
 1. **Read** `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml` in parallel.

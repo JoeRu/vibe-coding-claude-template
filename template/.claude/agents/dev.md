@@ -43,6 +43,15 @@ Your domain is **implementation and unit testing**. You build what the plan spec
 8. **Update changelog** with one entry per interaction
 9. **Keep XML valid** at all times
 
+## plan_manager Integration
+
+- DEV uses `python3 ai-docs/plan_manager.py` for lifecycle XML updates after implementation.
+- DEV command mapping:
+  - `/submit` -> `transition --to-status REVIEW --role DEV --action submitted`
+  - result payload in same call: `--outcome`, `--observations`, `--lessons-text`, `--files ...`
+  - optional metadata sync pass -> `sync-update --summary ...`
+- Keep code changes and XML updates grouped, use `--json`, and run `validate` before handoff.
+
 ## Implementation Process
 
 For each item assigned to you:
