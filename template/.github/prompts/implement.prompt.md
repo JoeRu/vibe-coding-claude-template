@@ -13,6 +13,12 @@ agent: 'agent'
 
 **Arguments:** `$ARGUMENTS` (optional: one or more item IDs, comma or space-separated. If empty, implement all APPROVED items.)
 
+## Execution Backend (XML Writes)
+
+- `/implement` orchestrates multiple calls to `python3 ai-docs/plan_manager.py` (`transition`, optional `create-item`, `sync-update`).
+- Keep a single grouped changelog entry per interaction where possible.
+- Use global `--json` on each call for predictable machine parsing.
+
 ## Overview
 
 This command takes items through the full lifecycle: analyze → approve (if needed) → implement → verify → update result. It is the primary command for getting work done.

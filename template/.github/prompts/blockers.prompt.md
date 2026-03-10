@@ -13,6 +13,12 @@ agent: 'agent'
 
 **Arguments:** `$ARGUMENTS` (one of: empty | `resolve <ID>` | `<title> --blocks <ID,...>`)
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py create-structural` for release/sprint/blocker entries.
+- Required flags: `--kind` and `--title`; optional `--status`, `--scope-item`, plus kind-specific fields.
+- Use global `--json` for structured IDs and operation results.
+
 ## Steps
 
 ### If `$ARGUMENTS` is empty — list blockers

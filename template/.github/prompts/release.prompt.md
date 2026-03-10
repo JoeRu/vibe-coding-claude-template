@@ -13,6 +13,12 @@ agent: 'agent'
 
 **Arguments:** `$ARGUMENTS` (one of: `<version> [--target <date>]` | `status <ID>` | `gate <ID> <gate-name>` | `go <ID>`)
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py create-structural` for release/sprint/blocker entries.
+- Required flags: `--kind` and `--title`; optional `--status`, `--scope-item`, plus kind-specific fields.
+- Use global `--json` for structured IDs and operation results.
+
 ## Steps
 
 ### Create a release — `$ARGUMENTS` is a version string (e.g. `v2.4.0`)

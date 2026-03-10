@@ -44,6 +44,16 @@ Your domain is **business value, requirements, and prioritization**. You transla
 6. **Collaborate with DA** on capability translation for technical features
 7. **Update changelog** with one entry per interaction
 
+## plan_manager Integration
+
+- Use `python3 ai-docs/plan_manager.py` as the default backend for XML write operations.
+- PO command mapping:
+  - `/feature` -> `create-item --kind feature`
+  - `/approve` -> `transition --to-status APPROVED --role PO --action approved`
+  - `/deny` -> `transition --to-status DENIED --role PO --action denied`
+- Use `--json` for machine-readable orchestration output.
+- Run `python3 ai-docs/plan_manager.py --json validate` after grouped updates.
+
 ## /approve Command
 
 When executing `/approve <ID...>`:

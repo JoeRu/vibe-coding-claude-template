@@ -13,6 +13,12 @@ Run code analysis in **update mode** as described in `CLAUDE-implementation-plan
 
 **Precondition:** Both `ai-docs/overview.xml` and `ai-docs/overview-features-bugs.xml` must already exist. If they don't, inform the user to run `/init` first.
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py sync-update` for metadata/changelog synchronization runs.
+- Optional: `--summary` to write a grouped changelog line.
+- Run `python3 ai-docs/plan_manager.py validate` after updates.
+
 ## Steps
 
 1. **Read** both XML files in parallel.

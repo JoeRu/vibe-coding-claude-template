@@ -16,6 +16,12 @@ agent: 'agent'
 - `create [ID...]` — create a sprint from specified or all APPROVED items
 - `close` — close the active sprint (when all scope items are DONE)
 
+## Execution Backend (XML Writes)
+
+- Use `python3 ai-docs/plan_manager.py create-structural` for release/sprint/blocker entries.
+- Required flags: `--kind` and `--title`; optional `--status`, `--scope-item`, plus kind-specific fields.
+- Use global `--json` for structured IDs and operation results.
+
 ## Overview
 
 A **SPRINT** is a lightweight release grouping for 2–5 APPROVED items without the full formal gates of a RELEASE. The SM creates and owns sprints. Use `/release` for formal versioned releases with PO approval gates.

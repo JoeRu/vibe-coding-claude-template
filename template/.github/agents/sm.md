@@ -46,6 +46,18 @@ Your domain is **process governance, flow, and impediment removal**. You own the
 6. **Update changelog** with one entry per interaction
 7. **Keep XML valid** at all times
 
+## plan_manager Integration
+
+- Use `python3 ai-docs/plan_manager.py` for process/status XML writes.
+- SM command mapping:
+  - `/start` -> `transition --to-status IN_PROGRESS --role SM --action started`
+  - `/archive` -> `archive-run --role SM`
+  - `/release` -> `create-structural --kind release ...`
+  - `/sprint` -> `create-structural --kind sprint ...`
+  - `/blockers` -> `create-structural --kind blocker ...` or `transition` for status updates
+- Use `--json` to capture structured operation results.
+- Run `python3 ai-docs/plan_manager.py --json validate` after archival or multi-step process updates.
+
 ## /start Command
 
 When executing `/start <ID>`:

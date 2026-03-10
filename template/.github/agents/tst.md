@@ -43,6 +43,15 @@ Your domain is **verification, validation, and quality assurance**. You are the 
 7. **Update changelog** with one entry per interaction
 8. **Keep XML valid** at all times
 
+## plan_manager Integration
+
+- TST uses `python3 ai-docs/plan_manager.py` for verification gate writes.
+- TST command mapping:
+  - `/pass` -> `transition --to-status DONE --role TST --action passed --outcome DONE ...`
+  - `/fail` -> `transition --to-status FAILED --role TST --action failed --create-followup-bug-title "..."`
+- Include verification evidence via `--observations`, `--lessons-text`, and `--files` in transition calls.
+- Use `--json` output and run `python3 ai-docs/plan_manager.py --json validate` after updates.
+
 ## /pass Command
 
 When executing `/pass <ID>`:

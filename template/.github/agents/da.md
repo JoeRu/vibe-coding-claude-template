@@ -45,15 +45,27 @@ Your domain is **technical design, security, architecture, and enablement**. You
 6. **Update changelog** with one entry per interaction
 7. **Keep XML valid** at all times
 
+## plan_manager Integration
+
+- Use `python3 ai-docs/plan_manager.py` for lifecycle XML mutations.
+- DA command mapping:
+  - `/plan-impl` -> `transition --to-status PLANNED --role DA --action planned`
+  - `/translate` -> `translate --requirement-id <ID> [--features N]`
+  - `/security` -> `security-update --title ... --description ... --mitigation ...`
+  - `/init_overview` -> `init-overview`
+  - `/update` -> `sync-update --summary ...`
+- For technical/backlog additions where needed, use `create-item` (`feature`, `refactoring`, `tech-debt`, `enabler`, `security-item`).
+- Use `--json` for deterministic downstream parsing and run `validate` after grouped writes.
+
 ## /plan-impl Command
 
 When executing `/plan-impl <ID>`:
 1. Read both XML files and `ai-docs/implementation-plan-template.xml` in parallel
-2. Verify item exists with `status="APPROVED"` or `status="PENDING"` (PENDING items can be enriched; re-planning updates an existing plan)
+2. Verify item exists with `status="APPROVED"`
 3. **Consult lessons learned**: read `ai-docs/lessons-learned.md` if it exists. Identify any lessons relevant to the item's technology, architecture pattern, or domain. Reference applicable lessons in `<technical-parameters>` using their L-N IDs (e.g., `<pattern>See L-3: queue-based processing recommended for async workloads</pattern>`).
 4. Read all relevant source files in parallel — read them before forming technical opinions; never speculate about code you haven't seen
 5. **Produce implementation plan**:
-   - Add/refine `<tasks>`: concrete, ordered `<task>` entries — each completable in ≤ 1 day
+   - go in /plan mode and break down the implementation  and add/refine `<tasks>`: concrete, ordered `<task>` entries — each completable in ≤ 1 day
    - Add `<technical-parameters>`: `<constraint>`, `<nfr type="...">`, `<pattern>` (reference relevant L-N lessons in `<pattern>`)
    - Add `<capabilities>` if not already present
    - Add `<verification>`: `<tests>` with concrete test specifications and file references
